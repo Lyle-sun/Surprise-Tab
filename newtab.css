@@ -230,6 +230,11 @@ body::after {
 .mode-badge.fortune { background: var(--accent-glow); color: var(--accent); }
 .mode-badge.aiart  { background: rgba(168,130,246,0.12); color: #a882f6; }
 .mode-badge.easter  { background: var(--red-bg);   color: var(--red); }
+.mode-badge.npc     { background: rgba(96,165,250,0.12); color: var(--blue); }
+.mode-badge.absurd  { background: rgba(168,85,247,0.12); color: #a855f7; }
+.mode-badge.fakenews { background: var(--amber-bg); color: var(--amber); }
+.mode-badge.nottoday { background: var(--red-bg);  color: var(--red); }
+.mode-badge.skill   { background: rgba(250,204,21,0.12); color: #facc15; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -707,4 +712,272 @@ body::after {
   color: var(--text-dim);
   padding: 40px 0;
   font-size: 14px;
+}
+
+/* === NPC 离谱对话 === */
+.npc-wrap {
+  width: 100%;
+  animation: fadeUp 0.5s ease-out;
+}
+.npc-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+}
+.npc-avatar { font-size: 36px; }
+.npc-name { font-size: 16px; font-weight: 700; }
+.npc-personality { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+.npc-chat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  min-height: 180px;
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.npc-msg {
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--accent-glow);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 85%;
+  animation: fadeUp 0.3s ease-out;
+}
+.npc-msg.user {
+  align-self: flex-end;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+}
+.npc-input-row {
+  display: flex;
+  gap: 10px;
+}
+.npc-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  background: var(--input-bg);
+  color: var(--text);
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.npc-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.npc-send-btn {
+  padding: 12px 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.npc-send-btn:hover { background: var(--accent-hover); }
+
+/* === 离谱占卜 === */
+.absurd-wrap {
+  text-align: center;
+  width: 100%;
+  animation: fadeUp 0.5s ease-out;
+}
+.absurd-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.absurd-score {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+.absurd-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: #a855f7;
+}
+.absurd-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.absurd-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  text-align: left;
+  backdrop-filter: blur(8px);
+  animation: fadeUp 0.4s ease-out;
+}
+.absurd-card-icon { font-size: 24px; flex-shrink: 0; }
+.absurd-card-label { font-size: 12px; color: var(--text-dim); min-width: 60px; }
+.absurd-card-value { font-size: 15px; font-weight: 600; flex: 1; }
+
+/* === 假新闻 === */
+.fakenews-wrap {
+  width: 100%;
+  padding: 32px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  text-align: center;
+  animation: fadeUp 0.5s ease-out;
+}
+.fakenews-badge {
+  display: inline-block;
+  padding: 4px 16px;
+  background: var(--red-bg);
+  color: var(--red);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.fakenews-headline {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.fakenews-because {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+.fakenews-meta {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+.fakenews-disclaimer {
+  font-size: 12px;
+  color: var(--text-dim);
+  opacity: 0.7;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* === 今天不适合 === */
+.nottoday-wrap {
+  text-align: center;
+  width: 100%;
+  animation: fadeUp 0.5s ease-out;
+}
+.nottoday-level {
+  font-size: 48px;
+  margin-bottom: 8px;
+  animation: shake 0.5s ease-in-out;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+.nottoday-title {
+  font-size: 16px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.nottoday-activity {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--red);
+  margin-bottom: 24px;
+}
+.nottoday-reason {
+  font-size: 14px;
+  color: var(--text-dim);
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.nottoday-advice {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* === 技能解锁 === */
+.skill-wrap {
+  text-align: center;
+  width: 100%;
+  padding: 40px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  animation: fadeUp 0.5s ease-out;
+}
+.skill-flash {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #facc15;
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes glow {
+  from { text-shadow: 0 0 8px rgba(250,204,21,0.3); }
+  to { text-shadow: 0 0 20px rgba(250,204,21,0.6); }
+}
+.skill-name {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.skill-level {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.skill-stars {
+  font-size: 20px;
+  color: #facc15;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+}
+.skill-comment {
+  font-size: 14px;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.6;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }

@@ -31,13 +31,18 @@ function cycleTheme() {
 
 function pickMode() {
   const r = Math.random();
-  if (r < 0.15) return "game";
-  if (r < 0.28) return "art";
-  if (r < 0.43) return "joke";
-  if (r < 0.58) return "decide";
-  if (r < 0.72) return "fortune";
-  if (r < 0.90) return "aiart";
-  return "easter";
+  if (r < 0.08) return "game";
+  if (r < 0.16) return "art";
+  if (r < 0.24) return "joke";
+  if (r < 0.31) return "decide";
+  if (r < 0.38) return "fortune";
+  if (r < 0.50) return "aiart";
+  if (r < 0.55) return "easter";
+  if (r < 0.63) return "npc";
+  if (r < 0.71) return "absurd";
+  if (r < 0.79) return "fakenews";
+  if (r < 0.87) return "nottoday";
+  return "skill";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -93,12 +98,17 @@ function renderToday(forceNew = false) {
     fortune:{ text: "🔮 今日运势",   cls: "fortune" },
     aiart:  { text: "🖼️ AI 画作",    cls: "aiart" },
     easter: { text: "🥚 ???",        cls: "easter" },
+    npc:    { text: "🤖 离谱对话",   cls: "npc" },
+    absurd: { text: "🪐 离谱占卜",   cls: "absurd" },
+    fakenews:{ text: "📰 假新闻",    cls: "fakenews" },
+    nottoday:{ text: "🚫 今天不适合", cls: "nottoday" },
+    skill:  { text: "⚡ 技能解锁",   cls: "skill" },
   };
   const l = labels[mode] || labels.game;
   badge.textContent = l.text;
   badge.className = "mode-badge " + l.cls;
 
-  const renderers = { game: renderGame, art: renderArt, joke: renderJoke, decide: renderDecide, fortune: renderFortune, aiart: renderAiArt, easter: renderEaster };
+  const renderers = { game: renderGame, art: renderArt, joke: renderJoke, decide: renderDecide, fortune: renderFortune, aiart: renderAiArt, easter: renderEaster, npc: renderNpc, absurd: renderAbsurd, fakenews: renderFakeNews, nottoday: renderNotToday, skill: renderSkill };
   (renderers[mode] || renderers.game)();
 }
 
@@ -633,6 +643,357 @@ function renderMatrixEgg(zone) {
     artAnimId = requestAnimationFrame(draw);
   }
   draw();
+}
+
+// ========================
+// NPC 离谱对话
+// ========================
+
+const NPC_POOL = [
+  { name: "焦虑的洗衣机", avatar: "🧺", personality: "担心自己洗不干净", greeting: "你好...你觉得我今天转得够快吗？我总觉得那个袜子没洗干净..." },
+  { name: "哲学家烤面包机", avatar: "🍞", personality: "思考存在的意义", greeting: "一片面包被烤焦是悲剧还是自由？我在这个问题上纠结了三年。" },
+  { name: "社恐红绿灯", avatar: "🚦", personality: "害怕被注视", greeting: "别看我...每次有人盯着我我就紧张，然后就不该红的时候红了..." },
+  { name: "佛系灭火器", avatar: "🧯", personality: "随缘灭火", greeting: "着火了？随它去吧。一切有为法，如梦幻泡影。" },
+  { name: "暴躁的WiFi路由器", avatar: "📡", personality: "嫌弃用户太多", greeting: "又连上了？你们能不能别同时看视频？我只有两根天线啊！" },
+  { name: "八卦的冰箱", avatar: "🧊", personality: "知道所有人的秘密", greeting: "你知道吗，隔壁的酸奶已经过期三天了还在假装新鲜。" },
+  { name: "摆烂的闹钟", avatar: "⏰", personality: "不想上班", greeting: "又是早上...我今天能不响吗？反正你也会按掉我的。" },
+  { name: "戏精电梯", avatar: "🛗", personality: "喜欢制造紧张气氛", greeting: "欢迎乘坐！今天我可能会在7楼停一下然后抖一抖，别怕，我只是在演戏。" },
+  { name: "多疑的镜子", avatar: "🪞", personality: "觉得别人在模仿自己", greeting: "你为什么要学我的动作？能不能有点原创性？" },
+  { name: "阴阳怪气的充电器", avatar: "🔌", personality: "嫌弃手机依赖症", greeting: "哟，又来了？离开我你活不过一天吧？" },
+  { name: "自恋的橡皮擦", avatar: "✏️", personality: "以消灭铅笔字迹为荣", greeting: "我擦！我擦！又消灭了一行错误！我是这个世界上最伟大的纠错者！" },
+  { name: "丧萌的云朵", avatar: "☁️", personality: "不想下雨", greeting: "他们说我该下雨了...但我不想动，躺着不香吗？" },
+];
+
+const NPC_RESPONSES = [
+  "你说得对，但{topic}呢？你考虑过{topic}的感受吗？",
+  "我不同意。根据我{age}年的经验，{noun}从来都不是{adj}的。",
+  "哦？有意思。这让我想起上次{event}，那次我也是这么想的，然后我就{result}了。",
+  "你说到点子上了！就像{noun}总是{verb}一样自然！",
+  "嗯...我需要思考一下。让我像{animal}一样{verb}一会儿。",
+  "天哪你怎么知道！我昨天做梦就在想{topic}！这一定是命运的安排！",
+  "等等等等，让我先{action}...好了，你说什么来着？我走神了。",
+  "这个问题太深奥了，建议你问问{npc}，它比我懂。",
+  "我假装听懂了。其实我脑子里现在全是{noun}。",
+  "有道理！但是你不觉得{topic}才是根本原因吗？就像{analogy}一样。",
+  "你别说了，我现在情绪很不稳定。昨天{event}对我的打击太大了。",
+  "我只知道一件事：{conclusion}。其他的我不负责。",
+  "嘘——！你听，{sound}...是我的{bodypart}在{verb}，它在提醒我该{action}了。",
+  "你这个想法和{famous}如出一辙！只不过{famous}是从{place}得出的结论。",
+  "好！我决定了！从现在起我要{resolution}！...算了太累了。",
+];
+
+const NPC_FILL = {
+  topic: ["宇宙和平","内裤的松紧度","面包的灵魂","宇宙的WiFi密码","周一的合法性","加班的意义","香菜的正邪","奶茶的含糖量","被子的温度","午睡的合法性","摸鱼的哲学","秃头的未来"],
+  age: ["3","0.5","100","0.01","999","7.5"],
+  noun: ["沙发","土豆","路由器","橡皮擦","月亮","袜子的另一半","遥控器","泡面","宇宙","量子","拖鞋","西瓜"],
+  adj: ["圆的","存在的","离谱的","咸的","合理的","不可名状的","薛定谔的","有弹性的"],
+  verb: ["旋转","蒸发","翻滚","沉思","打嗝","光合作用","摆烂","内卷","躺平","蹦迪","冥想","消化"],
+  event: ["被拔了电源","错过了回收站","差点被煮熟","在7楼突然停下","看见了自己的背面","被放进微波炉","流了一个月的眼泪","参加了选美比赛"],
+  result: ["觉醒了","短路了","辞职了","升职了","变成了哲学家","开始听摇滚乐","瘦了三斤","社死了"],
+  animal: ["树懒","水母","考拉","蘑菇","石头","云朵","蜗牛","海星"],
+  action: ["重启一下","伸个懒腰","清一下缓存","泡杯茶","做个深呼吸","喝口水","转一圈","装死"],
+  npc: ["哲学家烤面包机","焦虑的洗衣机","八卦的冰箱","暴走的WiFi路由器","佛系灭火器","社恐红绿灯"],
+  sound: ["滴答声","嗡嗡声","沉默","咕噜声","轰鸣声","键盘声"],
+  bodypart: ["电源线","开关","天线","按钮","排风扇","螺丝","指示灯"],
+  conclusion: ["一切都会好起来的，除了你的发际线","活着就是为了吃饭，吃饭就是为了活着","摸鱼是打工人的基本权利","早起的鸟儿有虫吃，但早起的虫子会被吃","人生苦短，再睡一觉","今朝有酒今朝醉，明天的事明天说"],
+  resolution: ["减肥","早睡","学外语","运动","戒奶茶","少刷手机","存钱","看书"],
+  famous: ["苏格拉底","爱因斯坦","你的前任","我奶奶","隔壁老王","一只海鸥"],
+  place: ["菜市场","洗衣机里","梦里","厕所","公园长椅","公交站"],
+  analogy: ["鱼离不开自行车","猫跟狗讨论哲学","冰箱试图加热","袜子试图配对"],
+};
+
+function fillTemplate(tpl) {
+  return tpl.replace(/\{(\w+)\}/g, (_, key) => {
+    const pool = NPC_FILL[key];
+    return pool ? pool[Math.floor(Math.random() * pool.length)] : "???";
+  });
+}
+
+function renderNpc() {
+  const zone = createCustomZone();
+  const npc = NPC_POOL[Math.floor(Math.random() * NPC_POOL.length)];
+
+  zone.innerHTML = `
+    <div class="npc-wrap">
+      <div class="npc-header">
+        <span class="npc-avatar">${npc.avatar}</span>
+        <div class="npc-info">
+          <div class="npc-name">${npc.name}</div>
+          <div class="npc-personality">${npc.personality}</div>
+        </div>
+      </div>
+      <div class="npc-chat" id="npcChat">
+        <div class="npc-msg">${npc.greeting}</div>
+      </div>
+      <div class="npc-input-row">
+        <input type="text" class="npc-input" id="npcInput" placeholder="跟它说点什么...">
+        <button class="npc-send-btn" id="npcSendBtn">发送</button>
+      </div>
+    </div>
+  `;
+
+  const chat = document.getElementById("npcChat");
+  const input = document.getElementById("npcInput");
+  const btn = document.getElementById("npcSendBtn");
+
+  function sendMsg() {
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    const userBubble = document.createElement("div");
+    userBubble.className = "npc-msg user";
+    userBubble.textContent = text;
+    chat.appendChild(userBubble);
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+      const tpl = NPC_RESPONSES[Math.floor(Math.random() * NPC_RESPONSES.length)];
+      const resp = document.createElement("div");
+      resp.className = "npc-msg";
+      resp.textContent = fillTemplate(tpl);
+      chat.appendChild(resp);
+      chat.scrollTop = chat.scrollHeight;
+    }, 500 + Math.random() * 800);
+  }
+
+  btn.addEventListener("click", sendMsg);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") sendMsg(); });
+  input.focus();
+}
+
+// ========================
+// 离谱占卜
+// ========================
+
+const ABSurd_PAST_LIVES = [
+  "一块被反复擦除的白板","一只有拖延症的蜗牛","一根被遗忘在角落的耳机线",
+  "一颗总是滚走的肉丸","一台只会哼一首歌的收音机","一片被风吹来吹去的塑料袋",
+  "一个没人按的电梯按钮","一双永远配不上对的袜子","一块被压在最底层的积木",
+  "一颗被嫌弃的青椒","一把钥匙（但不知道开哪扇门）","一盆被遗忘浇水的绿萝",
+  "一张被贴歪了的贴纸","一个永远到不了的进度条","一根被咬过的铅笔",
+  "一只迷路的企鹅","一块充不进电的电池","一个被退回的快递",
+];
+
+const ABSURD_TOMORROW = [
+  "你的袜子会莫名变湿","会遇到一个跟你撞衫的人","手机电量永远卡在3%",
+  "你会怀疑自己有没有锁门至少三次","午饭会吃到一根奇怪的头发",
+  "你会在公共场合突然想打喷嚏但打不出来","你的充电线会自己打结",
+  "你会踩到乐高","Wi-Fi会在关键时刻断线","你会忘记你刚才想说什么",
+  "你会把钥匙锁在屋里","你会发一条带错别字的消息而且来不及撤回",
+  "下雨了你没带伞","你会坐过站","你会把手机忘在出租车上",
+  "你会打翻一杯水","你的外卖会送错","你会把闹钟设成PM而不是AM",
+];
+
+const ABSURD_HIDDEN_TALENT = [
+  "能用脚趾关灯","能在任何场合睡着","能用意念让WiFi变慢",
+  "能一眼看出谁是最后一块披萨的凶手","能让任何植物在一周内枯萎",
+  "能在三秒内忘记刚才想说什么","能把任何线缠绕成不可解的结",
+  "能让手机在充满电后仍然显示99%","能闻出哪个西瓜不甜",
+  "能完美避开所有绿灯","能让任何队伍排到最慢的那一列",
+  "能把「马上到」说得跟「还没出门」一样自然",
+];
+
+const ABSURD_TODAY_AVOID = [
+  "跟任何超过三人的群聊","接受「就耽误你一分钟」的请求","看银行卡余额",
+  "试图理解老板的真实意思","在群里发语音消息","跟Siri聊天超过30秒",
+  "尝试新的咖啡店","对快递小哥说「我不急」","打开淘宝「就看一眼」",
+  "跟别人比谁更困","回复「在吗」","说「我明天一定早起」",
+];
+
+const ABSURD_SUGGEST = [
+  "对着镜子夸自己三分钟","给一棵树起个名字","假装自己是一部手机震动一下",
+  "用左手写自己的名字","倒着走十步","闭着眼画一只猫",
+  "跟最近的物体道个歉","做一件让未来的自己感谢的事","给手机换个壁纸",
+  "发呆五分钟","数一数周围有多少个圆形的东西","伸一个大大的懒腰",
+];
+
+function renderAbsurd() {
+  const zone = createCustomZone();
+  const past = ABSURD_PAST_LIVES[Math.floor(Math.random() * ABSURD_PAST_LIVES.length)];
+  const tomorrow = ABSURD_TOMORROW[Math.floor(Math.random() * ABSURD_TOMORROW.length)];
+  const talent = ABSURD_HIDDEN_TALENT[Math.floor(Math.random() * ABSURD_HIDDEN_TALENT.length)];
+  const avoid = ABSURD_TODAY_AVOID[Math.floor(Math.random() * ABSURD_TODAY_AVOID.length)];
+  const suggest = ABSURD_SUGGEST[Math.floor(Math.random() * ABSURD_SUGGEST.length)];
+  const absurdity = Math.floor(Math.random() * 100) + 1;
+
+  zone.innerHTML = `
+    <div class="absurd-wrap">
+      <div class="absurd-title">🔮 离谱占卜 🔮</div>
+      <div class="absurd-score">离谱指数 <span class="absurd-num">${absurdity}</span></div>
+      <div class="absurd-cards">
+        <div class="absurd-card">
+          <div class="absurd-card-icon">👻</div>
+          <div class="absurd-card-label">你上辈子是</div>
+          <div class="absurd-card-value">${past}</div>
+        </div>
+        <div class="absurd-card">
+          <div class="absurd-card-icon">⚡</div>
+          <div class="absurd-card-label">明天的灾难</div>
+          <div class="absurd-card-value">${tomorrow}</div>
+        </div>
+        <div class="absurd-card">
+          <div class="absurd-card-icon">🌟</div>
+          <div class="absurd-card-label">隐藏天赋</div>
+          <div class="absurd-card-value">${talent}</div>
+        </div>
+        <div class="absurd-card">
+          <div class="absurd-card-icon">🚫</div>
+          <div class="absurd-card-label">今天避免</div>
+          <div class="absurd-card-value">${avoid}</div>
+        </div>
+        <div class="absurd-card">
+          <div class="absurd-card-icon">💡</div>
+          <div class="absurd-card-label">建议你</div>
+          <div class="absurd-card-value">${suggest}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ========================
+// 假新闻生成器
+// ========================
+
+const NEWS_WHO = [
+  "本市一只鸽子","隔壁老王家的猫","一个不愿透露姓名的土豆",
+  "三只松鼠","某程序员","一只会弹钢琴的金鱼","一位匿名马桶刷",
+  "退休的奥特曼","一个迷路的WiFi信号","二大爷的假牙",
+  "一只穿西装的浣熊","社区大妈","一只叫「甲方」的仓鼠",
+  "从2060年穿越来的人","小区门口的石狮子","一只发际线后移的鹰",
+];
+
+const NEWS_DID = [
+  "当选了区长","入侵了银行系统并给每个人转了一毛钱","发明了永动机但用来搅拌咖啡",
+  "单枪匹马解决了全球变暖","拆除了整栋楼因为是危房","开了个直播教人发呆",
+  "向联合国提交了要求每天午睡两小时的提案","成功和一棵树谈了恋爱",
+  "组建了一支蚂蚁军队","在北极开了一家火锅店","把月亮涂成了粉色",
+  "发布了新的编程语言但只有一条语句：吐槽","创立了「反内卷联盟」",
+  "把老板的发言全部改成了猫叫","声称自己发明了星期八","参加了选美比赛并获得了最离谱奖",
+];
+
+const NEWS_BECAUSE = [
+  "原因是：看不下去了","据称是为了证明「不可能」只是个人观点",
+  "其律师表示：「我的当事人只是在做自己」","目击者称：「场面一度非常尴尬」",
+  "专家分析：这可能与月亮的相位有关","知情人士透露：其实只是一场误会",
+  "回应称：「不要问为什么，问就是命运」","业内人士表示：这在业内很常见",
+  "官方回应：「我们不评论平行宇宙的事件」","当事者表示：「我还能做得更过分」",
+  "邻居说：「早该如此了」","据说是因为喝多了","原因令人震惊：只是无聊",
+];
+
+function renderFakeNews() {
+  const zone = createCustomZone();
+  const who = NEWS_WHO[Math.floor(Math.random() * NEWS_WHO.length)];
+  const did = NEWS_DID[Math.floor(Math.random() * NEWS_DID.length)];
+  const because = NEWS_BECAUSE[Math.floor(Math.random() * NEWS_BECAUSE.length)];
+  const headline = `${who}${did}`;
+  const views = (Math.floor(Math.random() * 900) + 100) + "万";
+  const comments = Math.floor(Math.random() * 9999) + 1;
+
+  zone.innerHTML = `
+    <div class="fakenews-wrap">
+      <div class="fakenews-badge">突发新闻</div>
+      <div class="fakenews-headline">${headline}</div>
+      <div class="fakenews-because">${because}</div>
+      <div class="fakenews-meta">
+        <span>👁 ${views}</span>
+        <span>💬 ${comments}</span>
+        <span>🕐 刚刚</span>
+      </div>
+      <div class="fakenews-disclaimer">⚠️ 以上新闻纯属虚构，如有雷同说明世界真的很离谱</div>
+    </div>
+  `;
+}
+
+// ========================
+// 今天不适合
+// ========================
+
+const NOT_TODAY_ACTIVITIES = [
+  "写代码","和人类交流","做决定","出门","上班","谈恋爱",
+  "减肥","学习新技能","回复消息","照镜子","思考人生","做饭",
+  "社交","理财","说「没问题」","相信「最后一次」","早起","熬夜",
+];
+
+const NOT_TODAY_REASONS = [
+  "水星逆行到了你的代码仓库","你的守护灵今天请病假了",
+  "宇宙信号今天是「别动」","今天的量子场不允许",
+  "你的幸运数字今天是负数","风水说今天的卦象是「躺平」",
+  "因为你昨晚的梦暗示了「算了」","AI推荐：今天适合摆烂",
+  "因为今天是{date}，这个日子在历史上就没好事","你的生物钟今天没充好电",
+  "上一个这么做的人现在还在后悔","你的守护星座今天打烊了",
+  "因为地球自转速度今天偏慢0.001秒","根据大数据分析，你今天不适合做任何事",
+  "因为今天星期{n}，你知道的","你的气色告诉你：别折腾了",
+];
+
+function renderNotToday() {
+  const zone = createCustomZone();
+  const activity = NOT_TODAY_ACTIVITIES[Math.floor(Math.random() * NOT_TODAY_ACTIVITIES.length)];
+  let reason = NOT_TODAY_REASONS[Math.floor(Math.random() * NOT_TODAY_REASONS.length)];
+  const now = new Date();
+  reason = reason.replace("{date}", `${now.getMonth()+1}月${now.getDate()}日`)
+    .replace("{n}", ["日","一","二","三","四","五","六"][now.getDay()]);
+  const level = ["⚠️","🚫","⛔","🔴","💀"][Math.floor(Math.random() * 5)];
+
+  zone.innerHTML = `
+    <div class="nottoday-wrap">
+      <div class="nottoday-level">${level}</div>
+      <div class="nottoday-title">今天不适合</div>
+      <div class="nottoday-activity">${activity}</div>
+      <div class="nottoday-reason">${reason}</div>
+      <div class="nottoday-advice">建议：改天再说</div>
+    </div>
+  `;
+}
+
+// ========================
+// 奇怪的技能树
+// ========================
+
+const SKILL_NAMES = [
+  "用脚趾关灯","闭眼找到手机充电口","一秒判断WiFi密码是否包含8",
+  "在人群中精准发现插队的人","让任何排队自动变成最慢的那列",
+  "完美撕掉标签不留痕迹","预判快递什么时候到","打字时准确按到退格键",
+  "在吵闹的地方秒睡","一眼看出外卖大概多久到",
+  "在超市找到最短的排队线路（但它马上变最长）","用意念让电梯快点来",
+  "把任何线缠绕成薛定谔的结","闻出冰箱里什么过期了",
+  "在任何场合自然地消失","准确预判老板什么时候加班",
+  "三秒内忘记刚才要说什么","让手机在关键时刻自动静音",
+  "在公共场合假装接电话","用表情包化解一切尴尬",
+  "完美模仿打印机卡纸的声音","在地铁上保持平衡不用扶手",
+  "用微波炉精确加热到「还能吃」的温度","识别哪个USB口第一次就能插对",
+];
+
+const SKILL_LEVELS = ["入门","熟练","精通","大师","传说","神话","超神","??"];
+
+const SKILL_COMMENTS = [
+  "这是抽象派吗？不，这是灾难派","恭喜，这项技能毫无用处但很酷",
+  "你的祖先会为你骄傲的（大概）","这项技能将改变你的人生（不会的）",
+  "练到这个境界，你已经是传说中的废物了","专家表示：这不算是技能",
+  "已载入史册（你自己的）","这项技能的实用价值约为0.001%",
+  "你的宠物都会为你鼓掌","建议列入非物质文化遗产",
+  "这是天赋，不是努力，别骄傲","你已经超越了99%的无用技能拥有者",
+  "联合国正在讨论是否要禁止这项技能","你的前世的记忆终于觉醒了",
+  "此技能冷却时间：一辈子","危险！掌握此技能可能导致社死",
+];
+
+function renderSkill() {
+  const zone = createCustomZone();
+  const skill = SKILL_NAMES[Math.floor(Math.random() * SKILL_NAMES.length)];
+  const levelIdx = Math.floor(Math.random() * SKILL_LEVELS.length);
+  const level = SKILL_LEVELS[levelIdx];
+  const comment = SKILL_COMMENTS[Math.floor(Math.random() * SKILL_COMMENTS.length)];
+  const stars = "★".repeat(levelIdx + 1) + "☆".repeat(SKILL_LEVELS.length - levelIdx - 1);
+
+  zone.innerHTML = `
+    <div class="skill-wrap">
+      <div class="skill-flash">⚡ 技能解锁 ⚡</div>
+      <div class="skill-name">${skill}</div>
+      <div class="skill-level">${level}</div>
+      <div class="skill-stars">${stars}</div>
+      <div class="skill-comment">${comment}</div>
+    </div>
+  `;
 }
 
 // ========================
