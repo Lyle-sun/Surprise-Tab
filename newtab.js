@@ -31,18 +31,21 @@ function cycleTheme() {
 
 function pickMode() {
   const r = Math.random();
-  if (r < 0.08) return "game";
-  if (r < 0.16) return "art";
-  if (r < 0.24) return "joke";
-  if (r < 0.31) return "decide";
-  if (r < 0.38) return "fortune";
-  if (r < 0.50) return "aiart";
-  if (r < 0.55) return "easter";
-  if (r < 0.63) return "npc";
-  if (r < 0.71) return "absurd";
-  if (r < 0.79) return "fakenews";
-  if (r < 0.87) return "nottoday";
-  return "skill";
+  if (r < 0.07) return "game";
+  if (r < 0.14) return "art";
+  if (r < 0.21) return "joke";
+  if (r < 0.27) return "decide";
+  if (r < 0.33) return "fortune";
+  if (r < 0.43) return "aiart";
+  if (r < 0.48) return "easter";
+  if (r < 0.55) return "npc";
+  if (r < 0.62) return "absurd";
+  if (r < 0.69) return "fakenews";
+  if (r < 0.76) return "nottoday";
+  if (r < 0.83) return "skill";
+  if (r < 0.88) return "antichicken";
+  if (r < 0.93) return "persona";
+  return "nonsense";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -103,12 +106,15 @@ function renderToday(forceNew = false) {
     fakenews:{ text: "📰 假新闻",    cls: "fakenews" },
     nottoday:{ text: "🚫 今天不适合", cls: "nottoday" },
     skill:  { text: "⚡ 技能解锁",   cls: "skill" },
+    antichicken: { text: "🐔 反鸡汤",  cls: "antichicken" },
+    persona:{ text: "🎭 今日人设",   cls: "persona" },
+    nonsense:{ text: "📝 废话文学",   cls: "nonsense" },
   };
   const l = labels[mode] || labels.game;
   badge.textContent = l.text;
   badge.className = "mode-badge " + l.cls;
 
-  const renderers = { game: renderGame, art: renderArt, joke: renderJoke, decide: renderDecide, fortune: renderFortune, aiart: renderAiArt, easter: renderEaster, npc: renderNpc, absurd: renderAbsurd, fakenews: renderFakeNews, nottoday: renderNotToday, skill: renderSkill };
+  const renderers = { game: renderGame, art: renderArt, joke: renderJoke, decide: renderDecide, fortune: renderFortune, aiart: renderAiArt, easter: renderEaster, npc: renderNpc, absurd: renderAbsurd, fakenews: renderFakeNews, nottoday: renderNotToday, skill: renderSkill, antichicken: renderAntiChicken, persona: renderPersona, nonsense: renderNonsense };
   (renderers[mode] || renderers.game)();
 }
 
@@ -1002,6 +1008,221 @@ function renderSkill() {
       <div class="skill-level">${level}</div>
       <div class="skill-stars">${stars}</div>
       <div class="skill-comment">${comment}</div>
+    </div>
+  `;
+}
+
+// ========================
+// 反鸡汤
+// ========================
+
+const ANTI_CHICKEN_SOUP = [
+  "失败是成功之母，但成功不孕不育。",
+  "努力不一定成功，但不努力一定很轻松。",
+  "你只管努力，剩下的交给天意。天意说：不行。",
+  "世上无难事，只要肯放弃。",
+  "比你优秀的人都在努力，所以你努力也没用。",
+  "人生没有白走的路，每一步都算数——算你倒霉。",
+  "梦想还是要有的，万一实现了呢？万一没实现呢？那就对了。",
+  "只要路是对的，就不怕路远。问题是你的路对吗？",
+  "今天的你比昨天更强了，主要是因为昨天太弱了。",
+  "熬过最难的日子，你会发现后面还有更难的。",
+  "做你自己，因为别人都有人做了。而且他们做得比你好。",
+  "你是最棒的！这句话我对每个人都这么说。",
+  "每一次跌倒都是为了更好地趴着。",
+  "生活不止眼前的苟且，还有远方的苟且。",
+  "你虽然不能拼爹，但你可以拼命。",
+  "钱不是万能的，是万达的。但万一是你的呢？想多了。",
+  "坚持就是胜利，但放弃真的会很舒服。",
+  "当你觉得全世界都在针对你的时候，请记住：宇宙根本不知道你是谁。",
+  "上帝关上一扇门的同时，也顺便把窗户焊死了。",
+  "人生就像一杯茶，不会苦一辈子，但总会苦一阵子。然后又苦一阵子。",
+  "你现在的努力，是为了以后有更多的选择。比如选择用什么姿势躺平。",
+  "别人能行你也能行——这个鸡汤没告诉你的是：别人行你也可以不行。",
+  "你的潜力比你想象的大。遗憾的是你的运气比你想象的小。",
+  "只要功夫深，铁杵磨成针。但如果你一开始就有一根针呢？为什么要磨铁杵？",
+  "别灰心，你的人生才刚刚开始——开始走下坡路了。",
+  "你看人家谁谁谁——好的好的，我这就去看看人家的。然后呢？",
+  "成功人士都有早起的习惯，所以你早起就能成功？鸡起得比你早多了。",
+  "一切都会好起来的——这句话从我五岁骗到了现在。",
+  "你值得更好的——但更好的不值得你。",
+  "不要在意别人的眼光——反正他们也没在看你。",
+];
+
+function renderAntiChicken() {
+  const zone = createCustomZone();
+  const soup = ANTI_CHICKEN_SOUP[Math.floor(Math.random() * ANTI_CHICKEN_SOUP.length)];
+
+  zone.innerHTML = `
+    <div class="antichicken-wrap">
+      <div class="antichicken-icon">🐔</div>
+      <div class="antichicken-quote">${soup}</div>
+      <div class="antichicken-label">—— 反鸡汤</div>
+    </div>
+  `;
+}
+
+// ========================
+// 今日人设
+// ========================
+
+const PERSONA_ROLES = [
+  "对WiFi过敏的忍者","只会说倒装句的程序员","害怕圆形的建筑师",
+  "用意念控制红绿灯的超能力者（但只在凌晨3点有效）","社恐的脱口秀演员",
+  "味觉倒错的美食品鉴家","对平行宇宙有感应的快递员","能看到代码bug颜色的猎人",
+  "用表情包交流的外交官","起床气持续到下午的早鸟","方向感好到能感知地磁的人",
+  "永远踩到乐高的光脚大侠","对周一过敏的上班族","自带BGM的路人",
+  "能听见WiFi信号的声音的调音师","说话自带弹幕的人","永远分清左和右之前要先想一下的司机",
+  "对薛定谔的猫过敏的兽医","时间感知偏差3小时的闹钟","只会用反问句回答问题的哲学家",
+];
+
+const PERSONA_WEAKNESSES = [
+  "香菜","别人说「随便」","周一早上","WiFi断线","被问「你听懂了吗」",
+  "选择困难症","下午3点的困意","社交场合的沉默","手机电量低于20%",
+  "别人在后面看我操作电脑","闹钟响了但不想起","被人叫全名","排队",
+  "做自我介绍","接到电话","忘带钥匙","听到「我们聊聊」","看到「已读」",
+  "别人偷看手机屏幕","超市结账时排队排到最慢的那列",
+];
+
+const PERSONA_ITEMS = [
+  "一袋永远系不上口的垃圾袋","三根颜色不同的数据线（都不配套）",
+  "一张过期的优惠券","一双总有一只找不到的耳机",
+  "一个永远弹不出来的U盘","半瓶放了三天的水",
+  "一张写满了但看不懂的便签","一个裂了但还在用的手机壳",
+  "三个遥控器（两个没电池）","一根缠成一团的充电线",
+  "一个叫「新建文件夹(3)」的文件夹","一袋忘记放冰箱的外卖",
+  "一把永远找不到的钥匙","一张没写完的待办清单",
+  "一个永远停在99%的进度条",
+];
+
+const PERSONA_GOALS = [
+  "把全世界的数据线都整理好","找到那只走失的袜子",
+  "让老板同意下午3点午睡","在超市找到不排队的收银台",
+  "发明一个永远不会打结的耳机线","让周一从日历上消失",
+  "实现手机充电5秒用一天","让电梯来得再快一点",
+  "让所有外卖都准时到达","征服那台总是卡纸的打印机",
+  "让WiFi信号覆盖整个宇宙","在梦中写完所有代码",
+  "让闹钟响了之后真的能起来","让今天的工作在昨天就做完",
+  "找到遥控器永远的归宿",
+];
+
+function renderPersona() {
+  const zone = createCustomZone();
+  const role = PERSONA_ROLES[Math.floor(Math.random() * PERSONA_ROLES.length)];
+  const weakness = PERSONA_WEAKNESSES[Math.floor(Math.random() * PERSONA_WEAKNESSES.length)];
+  const item = PERSONA_ITEMS[Math.floor(Math.random() * PERSONA_ITEMS.length)];
+  const goal = PERSONA_GOALS[Math.floor(Math.random() * PERSONA_GOALS.length)];
+  const stats = {
+    "智商": Math.floor(Math.random() * 60) + 40,
+    "情商": Math.floor(Math.random() * 60) + 40,
+    "运气": Math.floor(Math.random() * 30) + 1,
+    "发量": Math.floor(Math.random() * 100),
+    "社恐": Math.floor(Math.random() * 100),
+    "摸鱼": Math.floor(Math.random() * 100),
+  };
+
+  zone.innerHTML = `
+    <div class="persona-wrap">
+      <div class="persona-title">🎭 今日人设 🎭</div>
+      <div class="persona-role">${role}</div>
+      <div class="persona-section">
+        <div class="persona-row"><span class="persona-label">💀 弱点</span><span class="persona-value">${weakness}</span></div>
+        <div class="persona-row"><span class="persona-label">🎒 随身物品</span><span class="persona-value">${item}</span></div>
+        <div class="persona-row"><span class="persona-label">🎯 今日目标</span><span class="persona-value">${goal}</span></div>
+      </div>
+      <div class="persona-stats">
+        ${Object.entries(stats).map(([k, v]) => `
+          <div class="persona-stat">
+            <span class="persona-stat-label">${k}</span>
+            <div class="persona-bar"><div class="persona-bar-fill" style="width:${v}%"></div></div>
+            <span class="persona-stat-num">${v}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+// ========================
+// 废话文学
+// ========================
+
+const NONSENSE_TEMPLATES = [
+  "据统计，{adj}的人在做{thing}的时候，其实都在{doing}。而剩下的{pct}%的人，则选择了{choice}。",
+  "专家指出，{thing1}和{thing2}之间存在着密不可分的关系：有{thing1}的地方一定有{thing2}，除非没有。",
+  "据最新研究显示，每{unit}都有{num}{unit}在流逝。这意味着当你读完这句话的时候，已经过去了大约{sec}秒。",
+  "在{count}个{people}中，有{pct}%的人表示自己{adj}，另外{pct2}%的人表示不发表意见，剩下的则表示「{response}」。",
+  "众所周知，{fact}。但很少有人知道，反过来其实也一样——{reverse}。这就是所谓的{principle}。",
+  "如果你{action1}，那么你{action2}的概率是{pct}%。但如果你不{action1}，那么你不{action2}的概率也是{pct}%。这意味着，{conclusion}。",
+  "历史告诉我们，{event1}的人最终都{result1}了。而{event2}的人，则{result2}。所以，到底要怎样，答案很明显：{obvious}。",
+  "根据{source}的最新数据，{thing}的{metric}比去年增长了{pct}%，但如果你仔细看，会发现这个数字其实{surprise}。",
+  "有人说{quote1}，也有人说{quote2}。但我要说的是，这两种说法{relation}——因为它们说的都是{same}。",
+  "当你{action}的时候，有没有想过，此时此刻全球大约有{count}人也在{action}？这就是所谓的{concept}。",
+  "研究证实，{thing}对{target}的影响是{effect}的。简单来说就是：有影响。至于什么影响——研究还在进行中。",
+  "{adj}的人总是{doing1}，而{adj2}的人总是{doing2}。但如果你既是{adj}又是{adj2}，恭喜你，你是{combo}。",
+];
+
+const NONSENSE_FILL = {
+  adj: ["优秀","普通","随机","不确定","可疑","匿名","大多数","少数"],
+  thing: ["呼吸","眨眼","思考","等待","犹豫","发呆","摸鱼","拖延"],
+  doing: ["假装在听","走神","想别的事","偷偷看手机","数天花板上的点","练习呼吸","回忆午饭吃了啥"],
+  pct: ["37","42","56","63","78","89","91"],
+  choice: ["放弃思考","假装听懂了","继续发呆","选择了沉默","直接躺平","假装很忙"],
+  thing1: ["周一","加班"], thing2: ["困","咖啡"],
+  unit: ["分钟","小时","秒","天"],
+  num: ["60","3600","24","1440"],
+  sec: ["3","5","8","2"],
+  count: ["1000","10000","100000"],
+  people: ["受访者","路人","上班族","大学生","社畜"],
+  response: ["你说什么","我刚才没听","再说一遍","随便吧","啊？"],
+  fact: ["太阳从东边升起","水往低处流","人要吃饭","时间不等人"],
+  reverse: ["水不往高处流","太阳不从西边落下","人不吃就不行","时间不等任何人"],
+  principle: ["废话定律","显而易见原理","说了等于没说法则","轮回定理"],
+  action1: ["努力","坚持","奋斗","早起","运动"],
+  action2: ["成功","变强","变好","精神","健康"],
+  conclusion: ["你做什么都一样","努力和不努力的结果可能一样","这完全取决于运气","关键是看心情"],
+  event1: ["坚持到底","半途而废","犹豫不决","果断行动"],
+  result1: ["坚持到了底","半途而废了","犹豫了很久","果断行动了"],
+  event2: ["中途放弃","从头开始","反复纠结","赌一把"],
+  result2: ["中途放弃了","从头开始了","反复纠结了","赌了一把"],
+  obvious: ["看心情","随缘","别想太多","你开心就好"],
+  source: ["某知名机构","互联网","大数据","一个不愿透露姓名的组织","隔壁老王"],
+  metric: ["增长率","普及率","使用率","关注度"],
+  surprise: ["跟去年一模一样","其实是在下降","根本没变化","换了个说法而已"],
+  quote1: ["人生苦短","金钱不是万能的","知识就是力量","时间就是金钱"],
+  quote2: ["及时行乐","没钱万万不能","无知是福","时间不等人"],
+  relation: ["都对","都错","互相矛盾","其实是一回事"],
+  same: ["废话","正确但没用的话","听君一席话如听一席话","说了等于没说"],
+  action: ["发呆","刷手机","叹气","摸鱼","打哈欠","喝水"],
+  target: ["人类","大脑","工作效率","心情","睡眠","社交"],
+  effect: ["有","显著","微妙","不确定"],
+  adj2: ["佛系","焦虑","躺平","内卷"],
+  doing1: ["在思考人生","在摸鱼","假装很忙","真的很忙"],
+  doing2: ["在焦虑","在躺平","假装很闲","真的很闲"],
+  combo: ["人类之光","薛定谔的状态","不可描述","辩证统一体"],
+  concept: ["同步率","共鸣","缘分","大数据的力量","量子纠缠"],
+};
+
+function genNonsense() {
+  const tpl = NONSENSE_TEMPLATES[Math.floor(Math.random() * NONSENSE_TEMPLATES.length)];
+  return tpl.replace(/\{(\w+)\}/g, (_, key) => {
+    const pool = NONSENSE_FILL[key];
+    if (!pool) return "???";
+    return pool[Math.floor(Math.random() * pool.length)];
+  });
+}
+
+function renderNonsense() {
+  const zone = createCustomZone();
+  const paragraphs = [genNonsense(), genNonsense(), genNonsense()];
+
+  zone.innerHTML = `
+    <div class="nonsense-wrap">
+      <div class="nonsense-title">📝 废话文学 📝</div>
+      <div class="nonsense-body">
+        ${paragraphs.map(p => `<p class="nonsense-p">${p}</p>`).join("")}
+      </div>
+      <div class="nonsense-footer">—— 听君一席话，如听一席话</div>
     </div>
   `;
 }

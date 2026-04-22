@@ -235,6 +235,9 @@ body::after {
 .mode-badge.fakenews { background: var(--amber-bg); color: var(--amber); }
 .mode-badge.nottoday { background: var(--red-bg);  color: var(--red); }
 .mode-badge.skill   { background: rgba(250,204,21,0.12); color: #facc15; }
+.mode-badge.antichicken { background: var(--amber-bg); color: var(--amber); }
+.mode-badge.persona { background: var(--pink-bg);  color: var(--pink); }
+.mode-badge.nonsense { background: var(--cyan-bg);  color: var(--cyan); }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -978,6 +981,147 @@ body::after {
   color: var(--text-dim);
   font-style: italic;
   line-height: 1.6;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* === 反鸡汤 === */
+.antichicken-wrap {
+  text-align: center;
+  width: 100%;
+  padding: 48px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  animation: fadeUp 0.5s ease-out;
+}
+.antichicken-icon {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+.antichicken-quote {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.antichicken-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* === 今日人设 === */
+.persona-wrap {
+  width: 100%;
+  animation: fadeUp 0.5s ease-out;
+}
+.persona-title {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.persona-role {
+  font-size: 26px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--pink);
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--pink-bg);
+  border-radius: 16px;
+}
+.persona-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.persona-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.persona-row:last-child { border-bottom: none; }
+.persona-label { color: var(--text-dim); font-weight: 500; }
+.persona-value { color: var(--text); font-weight: 600; text-align: right; max-width: 60%; }
+.persona-stats {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+.persona-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.persona-stat-label {
+  min-width: 36px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.persona-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--surface-hover);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.persona-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.6s ease-out;
+}
+.persona-stat-num {
+  min-width: 24px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* === 废话文学 === */
+.nonsense-wrap {
+  width: 100%;
+  padding: 36px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  animation: fadeUp 0.5s ease-out;
+}
+.nonsense-title {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.nonsense-body {
+  text-align: left;
+}
+.nonsense-p {
+  font-size: 15px;
+  line-height: 2;
+  margin-bottom: 16px;
+  color: var(--text);
+  padding-left: 16px;
+  border-left: 3px solid var(--accent);
+}
+.nonsense-p:last-child { margin-bottom: 0; }
+.nonsense-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }
