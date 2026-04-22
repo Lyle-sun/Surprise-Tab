@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surprise Tab - 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <h1>Surprise Tab <span class="version">v1.0</span></h1>
+
+    <section class="setting-group">
+      <h2>API 配置</h2>
+      <p class="hint">选择 API 提供商并填入你的 Key，支持任何兼容 OpenAI 格式的 API。</p>
+
+      <label for="apiProvider">API 提供商</label>
+      <select id="apiProvider"></select>
+
+      <label for="apiUrl">API 地址</label>
+      <input type="url" id="apiUrl" placeholder="https://api.example.com/v1/chat/completions" autocomplete="off">
+
+      <label for="apiKey">API Key</label>
+      <input type="password" id="apiKey" placeholder="填入你的 API Key" autocomplete="off">
+
+      <label for="model">模型名称</label>
+      <input type="text" id="model" placeholder="如 glm-4-flash、deepseek-chat、gpt-4o-mini 等" autocomplete="off">
+    </section>
+
+    <section class="setting-group">
+      <h2>调试</h2>
+      <button class="btn btn-secondary" id="testBtn">测试 API 连接</button>
+      <p class="test-result" id="testResult"></p>
+
+      <button class="btn btn-secondary" id="clearCacheBtn">清除今日缓存（强制重新生成）</button>
+    </section>
+
+    <div class="save-bar">
+      <span class="save-status" id="saveStatus"></span>
+      <button class="btn btn-primary" id="saveBtn">保存设置</button>
+    </div>
+  </div>
+  <script type="module" src="options.js"></script>
+</body>
+</html>
