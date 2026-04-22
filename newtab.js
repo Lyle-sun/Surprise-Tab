@@ -99,7 +99,7 @@ function renderToday(forceNew = false) {
     joke:   { text: "😂 冷笑话",     cls: "joke" },
     decide: { text: "🎲 帮我选",     cls: "decide" },
     fortune:{ text: "🔮 今日运势",   cls: "fortune" },
-    aiart:  { text: "🖼️ AI 画作",    cls: "aiart" },
+    aiart:  { text: "🖼️ 幻觉画展",    cls: "aiart" },
     easter: { text: "🥚 ???",        cls: "easter" },
     npc:    { text: "🤖 离谱对话",   cls: "npc" },
     absurd: { text: "🪐 离谱占卜",   cls: "absurd" },
@@ -114,7 +114,7 @@ function renderToday(forceNew = false) {
   badge.textContent = l.text;
   badge.className = "mode-badge " + l.cls;
 
-  const renderers = { game: renderGame, art: renderArt, joke: renderJoke, decide: renderDecide, fortune: renderFortune, aiart: renderAiArt, easter: renderEaster, npc: renderNpc, absurd: renderAbsurd, fakenews: renderFakeNews, nottoday: renderNotToday, skill: renderSkill, antichicken: renderAntiChicken, persona: renderPersona, nonsense: renderNonsense };
+  const renderers = { game: renderGame, art: renderArt, joke: renderJoke, decide: renderDecide, fortune: renderFortune, aiart: renderHallucination, easter: renderEaster, npc: renderNpc, absurd: renderAbsurd, fakenews: renderFakeNews, nottoday: renderNotToday, skill: renderSkill, antichicken: renderAntiChicken, persona: renderPersona, nonsense: renderNonsense };
   (renderers[mode] || renderers.game)();
 }
 
@@ -475,58 +475,60 @@ function renderFortune() {
 }
 
 // ========================
-// AI 画作（pollinations.ai 免费生成）
+// 幻觉画展
 // ========================
 
-const AI_ART_PROMPTS = [
-  "a spaghetti monster fighting a toaster in a bathtub filled with clocks, surrealism, chaotic",
-  "a business meeting where everyone is a different vegetable, corporate horror, oil painting",
-  "a giraffe wearing sneakers breakdancing on the moon while penguins judge, absurdist art",
-  "a traffic jam inside someone's stomach, cars driving through intestines, weird art",
-  "a cat giving a TED talk to an audience of rubber ducks, surrealist painting",
-  "a staircase that leads to a giant eye in the sky, MC Escher meets Salvador Dali",
-  "a whale flying over a city made entirely of jello, bizarre, vivid colors",
-  "a potato running for president, campaign rally with tiny vegetables holding signs, satirical art",
-  "a man whose head is a fishbowl and the fish inside is wearing a tiny hat, surreal portrait",
-  "a tornado made of old socks destroying a Lego city, absurd, dramatic lighting",
-  "an octopus playing 8 pianos simultaneously, each tentacle on a different piano, chaotic concert",
-  "a city where all buildings are made of cheese, mice in suits walking on cheese streets",
-  "a snail racing a cheetah and winning, the cheetah is crying, sports photography style",
-  "a meditation retreat where everyone is screaming, peaceful nature background, ironic",
-  "a grand piano falling from the sky into a bowl of soup, slow motion, dramatic",
-  "a dragon allergic to fire sneezing bubbles onto a medieval village, watercolor",
-  "a penguin barista making coffee for a polar bear, cozy cafe in Antarctica",
-  "a cloud that refuses to rain because it's having a bad day, emotional weather art",
-  "a warehouse full of spare body parts having a party, grotesque surrealism",
-  "a dog driving a tiny car through a car wash that is also a therapy session",
-  "a mountain that is actually a sleeping giant, trees growing on its face, fantasy art",
-  "a submarine floating in the sky dropping clouds instead of torpedoes, absurd military art",
-  "a bee the size of a building collecting pollen from a flower skyscraper, macro scale art",
-  "a chess game where the pieces are alive and arguing about their next moves, renaissance style",
-  "a toilet that is a portal to another dimension where everything is backwards, psychedelic",
-  "a grandma arm wrestling a robot and winning easily, the robot is crying oil, hyperrealistic",
-  "a library where all the books are screaming, a person calmly reading one anyway, dark humor",
-  "a fish driving a forklift in an underwater warehouse, corporate absurdism",
-  "a cake that is also a volcano, candles erupting like lava, birthday apocalypse",
-  "a mirror that reflects a completely different room with a different you staring back, horror surrealism",
-  "a group of crows in trench coats pretending to be a human at a job interview, noir style",
-  "a sink drain that leads to a beautiful paradise, someone reaching in to pull the plug",
-  "a roomba that has achieved sentience and is now painting murals on the floor, abstract expressionism",
-  "a vending machine in the middle of a desert, only sells existential crises, moody lighting",
-  "a tiny civilization living inside a snow globe arguing about climate change, meta humor",
+const HALLUCINATION_PROMPTS = [
+  "a rubber duck performing brain surgery on a terrified calculator, hospital lighting, photorealistic",
+  "a pair of pants running for mayor, giving a passionate speech to an audience of shirts, political campaign poster style",
+  "a toothbrush and a tube of toothpaste getting divorced in court, the toothbrush is crying, courtroom sketch",
+  "a tomato attending its own funeral, all the vegetables are wearing black, renaissance painting",
+  "a keyboard where the keys are tiny screaming faces, someone typing furiously, horror impressionism",
+  "a group of clouds forming a boy band, performing on a stage made of rainbow, kpop concert photo",
+  "a wifi router as a religious shrine, people in robes worshiping the blinking lights, sacred art",
+  "a refrigerator that opens into a beach vacation, someone reaching in wearing a swimsuit, renaissance portal",
+  "a snail with a rocket engine strapped to its shell, leaving a trail of fire, action movie poster",
+  "an elevator that goes sideways, confused passengers holding on to the walls, architectural photography",
+  "a grand cathedral made entirely of ramen noodles, worshipers with chopsticks praying, baroque architecture",
+  "a brain doing cardio on a treadmill, sweating smaller thoughts out of its ears, fitness magazine cover",
+  "a birthday cake that is terrified of candles, trying to blow them out from the other side, nightmare before christmas style",
+  "a stapler and a hole puncher having a duel at dawn, office supplies watching in horror, western movie",
+  "a giraffe trying to hide behind a single blade of grass, clearly visible, children book illustration",
+  "a washing machine that has become a portal to the sock dimension, millions of single socks pouring out, sci-fi",
+  "a potato giving an Oscar acceptance speech, crying tears of mashed potato, awards ceremony photography",
+  "a traffic light that only shows purple and has no idea what it means, confused drivers everywhere, urban photography",
+  "a sandwich eating a person, the person is between two slices of bread, the sandwich looks satisfied, pop art",
+  "a mirror that makes everyone look like a potato, a beautiful person looking at their potato reflection, vanity portrait",
+  "a meeting where all the chairs have quit and are picketing outside, people sitting on the floor, corporate documentary",
+  "a pizza delivering a human to a door, the human is in a flat box, delivery photo",
+  "a pencil that draws itself into existence, hand trembling, MC Escher impossible object style",
+  "a clock that shows time in emotions instead of numbers, currently showing anxious, contemporary art gallery",
+  "a pair of shoes walking by themselves through a park, feeding pigeons, no human visible, romantic painting",
+  "a tree that grows iPhones instead of fruit, farmers harvesting them with ladders, agricultural photography",
+  "a coffee cup that is eternally full but always cold, someone staring at it with existential dread, still life",
+  "a cat made entirely of lasagna, another cat trying to eat it, the lasagna cat looks concerned, baroque",
+  "a USB plug that fits on the first try, angels singing and golden light beaming, religious masterpiece",
+  "a bank where the currency is compliments, people lining up to withdraw you look nice today, bank interior",
+  "a ghost that is afraid of humans, hiding under a bedsheet that is itself afraid of the ghost, inception horror",
+  "a group of mosquitoes forming a choir, singing at a human they just bit, church choir performance",
+  "a house that got up and walked away, the foundation looking confused and abandoned, architectural photography",
+  "a zebra that painted itself purple to stand out, other zebras judging hard, wildlife documentary",
+  "a toilet seat that has been elected president, giving an address from the oval bathroom, presidential portrait",
 ];
 
-function renderAiArt() {
+function renderHallucination() {
   const zone = createCustomZone();
-  const prompt = AI_ART_PROMPTS[Math.floor(Math.random() * AI_ART_PROMPTS.length)];
+  const prompt = HALLUCINATION_PROMPTS[Math.floor(Math.random() * HALLUCINATION_PROMPTS.length)];
+
+  const titles = ["幻觉画展","梦境画册","意识流画廊","平行宇宙快照","精神状态可视化"];
 
   zone.innerHTML = `
     <div class="aiart-wrap">
       <div class="aiart-loading" id="aiartLoading">
         <div class="loading-spinner"></div>
-        <p>AI 正在作画...</p>
+        <p>正在通灵...</p>
       </div>
-      <img class="aiart-img" id="aiartImg" style="display:none" alt="AI 生成画作">
+      <img class="aiart-img" id="aiartImg" style="display:none" alt="幻觉画作">
       <div class="aiart-prompt" id="aiartPrompt" style="display:none"></div>
     </div>
   `;
@@ -539,7 +541,7 @@ function renderAiArt() {
   const timeout = setTimeout(() => {
     if (settled) return;
     settled = true;
-    zone.innerHTML = `<div class="aiart-error">画作生成超时，点击刷新试试</div>`;
+    zone.innerHTML = `<div class="aiart-error">通灵失败，精神频道被占用，点击刷新再试</div>`;
   }, 15000);
 
   img.onload = () => {
@@ -554,7 +556,7 @@ function renderAiArt() {
     if (settled) return;
     settled = true;
     clearTimeout(timeout);
-    zone.innerHTML = `<div class="aiart-error">画作生成失败，点击刷新试试</div>`;
+    zone.innerHTML = `<div class="aiart-error">通灵失败，精神频道被占用，点击刷新再试</div>`;
   };
 
   const seed = Math.floor(Math.random() * 999999);
