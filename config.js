@@ -1,4 +1,5 @@
 export const PRESET_APIS = [
+  { name: "Gemini Nano (本地)", url: "chrome-built-in-ai" },
   { name: "智谱 GLM", url: "https://open.bigmodel.cn/api/paas/v4/chat/completions" },
   { name: "DeepSeek", url: "https://api.deepseek.com/v1/chat/completions" },
   { name: "OpenAI", url: "https://api.openai.com/v1/chat/completions" },

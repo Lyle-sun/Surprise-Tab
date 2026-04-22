@@ -1,3 +1,4 @@
+/* === 深色主题（默认） === */
 :root {
   --bg: #0f0f1a;
   --surface: rgba(255,255,255,0.06);
@@ -20,6 +21,79 @@
   --red-bg: rgba(248,113,113,0.12);
   --blue: #60a5fa;
   --blue-bg: rgba(96,165,250,0.12);
+  --glow-a: rgba(108,99,255,0.08);
+  --glow-b: rgba(244,114,182,0.06);
+  --search-focus-bg: rgba(255,255,255,0.08);
+  --flip-back-bg: var(--accent-glow);
+  --flip-back-border: rgba(108,99,255,0.3);
+  --flip-hover-border: rgba(255,255,255,0.12);
+  --input-bg: rgba(255,255,255,0.04);
+}
+
+/* === 浅色主题 === */
+[data-theme="light"] {
+  --bg: #f5f3ef;
+  --surface: rgba(0,0,0,0.03);
+  --surface-hover: rgba(0,0,0,0.06);
+  --border: rgba(0,0,0,0.08);
+  --text: #1a1a2e;
+  --text-dim: #8a8898;
+  --accent: #5b52ee;
+  --accent-glow: rgba(91,82,238,0.15);
+  --accent-hover: #4a42dd;
+  --green: #16a34a;
+  --green-bg: rgba(22,163,74,0.1);
+  --pink: #db2777;
+  --pink-bg: rgba(219,39,119,0.1);
+  --amber: #d97706;
+  --amber-bg: rgba(217,119,6,0.1);
+  --cyan: #0891b2;
+  --cyan-bg: rgba(8,145,178,0.1);
+  --red: #dc2626;
+  --red-bg: rgba(220,38,38,0.1);
+  --blue: #2563eb;
+  --blue-bg: rgba(37,99,235,0.1);
+  --glow-a: rgba(91,82,238,0.05);
+  --glow-b: rgba(219,39,119,0.04);
+  --search-focus-bg: rgba(0,0,0,0.02);
+  --flip-back-bg: rgba(91,82,238,0.1);
+  --flip-back-border: rgba(91,82,238,0.2);
+  --flip-hover-border: rgba(0,0,0,0.12);
+  --input-bg: rgba(0,0,0,0.02);
+}
+
+/* === 跟随系统 === */
+@media (prefers-color-scheme: light) {
+  [data-theme="auto"] {
+    --bg: #f5f3ef;
+    --surface: rgba(0,0,0,0.03);
+    --surface-hover: rgba(0,0,0,0.06);
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1a2e;
+    --text-dim: #8a8898;
+    --accent: #5b52ee;
+    --accent-glow: rgba(91,82,238,0.15);
+    --accent-hover: #4a42dd;
+    --green: #16a34a;
+    --green-bg: rgba(22,163,74,0.1);
+    --pink: #db2777;
+    --pink-bg: rgba(219,39,119,0.1);
+    --amber: #d97706;
+    --amber-bg: rgba(217,119,6,0.1);
+    --cyan: #0891b2;
+    --cyan-bg: rgba(8,145,178,0.1);
+    --red: #dc2626;
+    --red-bg: rgba(220,38,38,0.1);
+    --blue: #2563eb;
+    --blue-bg: rgba(37,99,235,0.1);
+    --glow-a: rgba(91,82,238,0.05);
+    --glow-b: rgba(219,39,119,0.04);
+    --search-focus-bg: rgba(0,0,0,0.02);
+    --flip-back-bg: rgba(91,82,238,0.1);
+    --flip-back-border: rgba(91,82,238,0.2);
+    --flip-hover-border: rgba(0,0,0,0.12);
+    --input-bg: rgba(0,0,0,0.02);
+  }
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,9 +104,9 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
 }
 
-/* 背景渐变光晕 */
 body::before {
   content: "";
   position: fixed;
@@ -40,7 +114,7 @@ body::before {
   left: -10%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(108,99,255,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--glow-a) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -51,7 +125,7 @@ body::after {
   right: -10%;
   width: 50%;
   height: 50%;
-  background: radial-gradient(circle, rgba(244,114,182,0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--glow-b) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -100,7 +174,7 @@ body::after {
 .search-wrap form:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
-  background: rgba(255,255,255,0.08);
+  background: var(--search-focus-bg);
 }
 
 .search-icon {
@@ -149,9 +223,13 @@ body::after {
   letter-spacing: 0.5px;
   animation: fadeUp 0.5s ease-out;
 }
-.mode-badge.game { background: var(--green-bg); color: var(--green); }
-.mode-badge.art  { background: var(--pink-bg);  color: var(--pink); }
-.mode-badge.joke { background: var(--amber-bg); color: var(--amber); }
+.mode-badge.game    { background: var(--green-bg); color: var(--green); }
+.mode-badge.art     { background: var(--pink-bg);  color: var(--pink); }
+.mode-badge.joke    { background: var(--amber-bg); color: var(--amber); }
+.mode-badge.decide  { background: var(--cyan-bg);  color: var(--cyan); }
+.mode-badge.fortune { background: var(--accent-glow); color: var(--accent); }
+.mode-badge.aiart  { background: rgba(168,130,246,0.12); color: #a882f6; }
+.mode-badge.easter  { background: var(--red-bg);   color: var(--red); }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -229,12 +307,12 @@ body::after {
 
 .flip-card:hover .flip-card-front {
   background: var(--surface-hover);
-  border-color: rgba(255,255,255,0.12);
+  border-color: var(--flip-hover-border);
 }
 
 .flip-card-back {
-  background: var(--accent-glow);
-  border: 1px solid rgba(108,99,255,0.3);
+  background: var(--flip-back-bg);
+  border: 1px solid var(--flip-back-border);
   transform: rotateY(180deg);
 }
 
@@ -243,7 +321,6 @@ body::after {
   border-color: rgba(74,222,128,0.3);
 }
 
-/* 猜数字 */
 .guess-zone { text-align: center; }
 .guess-input-row {
   display: flex;
@@ -451,4 +528,183 @@ body::after {
   background: var(--accent-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+/* === 自定义区域（决策/运势/彩蛋） === */
+.custom-zone {
+  width: 100%;
+  animation: fadeUp 0.5s ease-out;
+}
+
+/* === 随机决策器 === */
+.decide-wrap { text-align: center; }
+.decide-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+.decide-cats { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.decide-cat-btn {
+  padding: 10px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.decide-cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+.decide-result {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 20px 0;
+  animation: fadeUp 0.4s ease-out;
+}
+.decide-btn {
+  padding: 10px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.decide-btn:hover { border-color: var(--accent); color: var(--accent); }
+.decide-animation {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-dim);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === 今日运势 === */
+.fortune-wrap { text-align: center; }
+.fortune-luck {
+  font-size: 64px;
+  font-weight: 800;
+  margin-bottom: 28px;
+  animation: fadeUp 0.6s ease-out;
+}
+.luck-大吉 { color: var(--green); }
+.luck-中吉 { color: var(--cyan); }
+.luck-小吉 { color: var(--blue); }
+.luck-吉   { color: var(--accent); }
+.luck-末吉 { color: var(--text-dim); }
+.luck-凶   { color: var(--amber); }
+.luck-大凶 { color: var(--red); }
+.fortune-details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 28px;
+  margin-bottom: 20px;
+}
+.fortune-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+}
+.fortune-row:last-child { border-bottom: none; }
+.fortune-label { color: var(--text-dim); font-weight: 500; }
+.fortune-value { color: var(--text); }
+.fortune-extras {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.fortune-extras b { color: var(--accent); font-weight: 600; }
+
+/* === 彩蛋：终端 === */
+.terminal-wrap {
+  background: #0a0a0a;
+  border-radius: 16px;
+  padding: 20px;
+  overflow: hidden;
+}
+.terminal {
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", Menlo, monospace;
+  font-size: 14px;
+  color: #0f0;
+  max-height: 300px;
+  overflow-y: auto;
+  line-height: 1.8;
+}
+.terminal-line { white-space: pre-wrap; }
+
+/* === 彩蛋：假更新 === */
+.fake-update { text-align: center; }
+.update-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+.update-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+.update-progress {
+  width: 100%;
+  height: 6px;
+  background: var(--surface);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.update-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.1s;
+}
+.update-pct { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; }
+.update-hint { font-size: 13px; color: var(--text-dim); }
+
+/* === 彩蛋：Matrix === */
+.matrix-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+}
+#matrixCanvas { display: block; }
+
+/* === AI 画作 === */
+.aiart-wrap { text-align: center; }
+.aiart-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 60px 0;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+.aiart-img {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  animation: fadeUp 0.6s ease-out;
+}
+.aiart-prompt {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.5;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.aiart-error {
+  color: var(--text-dim);
+  padding: 40px 0;
+  font-size: 14px;
 }

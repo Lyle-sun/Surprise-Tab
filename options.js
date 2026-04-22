@@ -1,6 +1,9 @@
 import { PRESET_APIS } from "./config.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const savedTheme = localStorage.getItem("theme") || "auto";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+
   const providerSelect = document.getElementById("apiProvider");
   PRESET_APIS.forEach(p => {
     const opt = document.createElement("option");
@@ -22,10 +25,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     providerSelect.value = matched ? apiUrl : "";
   }
 
+  function toggleFields() {
+    const isNano = providerSelect.value === "chrome-built-in-ai";
+    const urlInput = document.getElementById("apiUrl");
+    const keyInput = document.getElementById("apiKey");
+    const modelInput = document.getElementById("model");
+
+    urlInput.value = isNano ? "chrome-built-in-ai" : (providerSelect.value || urlInput.value);
+    keyInput.parentElement.style.display = isNano ? "none" : "";
+    modelInput.parentElement.style.display = isNano ? "none" : "";
+  }
+
   providerSelect.addEventListener("change", () => {
     const url = providerSelect.value;
-    if (url) document.getElementById("apiUrl").value = url;
+    if (url && url !== "chrome-built-in-ai") document.getElementById("apiUrl").value = url;
+    toggleFields();
   });
+
+  toggleFields();
 
   document.getElementById("saveBtn").addEventListener("click", saveSettings);
   document.getElementById("testBtn").addEventListener("click", testConnection);
@@ -50,41 +67,49 @@ async function testConnection() {
   resultEl.style.color = "";
 
   const apiUrl = document.getElementById("apiUrl").value.trim();
+
+  // Gemini Nano 测试
+  if (apiUrl === "chrome-built-in-ai") {
+    try {
+      const resp = await chrome.runtime.sendMessage({ action: "checkNano" });
+      if (resp.available) {
+        resultEl.textContent = "Gemini Nano 可用！本地 AI 已就绪";
+        resultEl.style.color = "#4ade80";
+      } else {
+        resultEl.textContent = "Gemini Nano 不可用，需要 Chrome 127+ 并在 chrome://flags 启用 Optimization Guide on device model";
+        resultEl.style.color = "#f87171";
+      }
+    } catch {
+      resultEl.textContent = "检测失败，请确认 Chrome 版本 >= 127";
+      resultEl.style.color = "#f87171";
+    }
+    return;
+  }
+
   const apiKey = document.getElementById("apiKey").value.trim();
   const model = document.getElementById("model").value.trim();
 
   if (!apiUrl || !apiKey) {
     resultEl.textContent = "请先填写 API 地址和 Key";
-    resultEl.style.color = "#ff6b6b";
+    resultEl.style.color = "#f87171";
     return;
   }
 
   try {
-    const body = {
-      messages: [{ role: "user", content: "你好，请回复'连接成功'" }],
-      max_tokens: 20
-    };
+    const body = { messages: [{ role: "user", content: "你好，请回复'连接成功'" }], max_tokens: 20 };
     if (model) body.model = model;
 
     const resp = await fetch(apiUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
       body: JSON.stringify(body)
     });
 
-    if (resp.ok) {
-      resultEl.textContent = "连接成功！";
-      resultEl.style.color = "#6bcb77";
-    } else {
-      resultEl.textContent = `连接失败: HTTP ${resp.status}`;
-      resultEl.style.color = "#ff6b6b";
-    }
+    if (resp.ok) { resultEl.textContent = "连接成功！"; resultEl.style.color = "#4ade80"; }
+    else { resultEl.textContent = `连接失败: HTTP ${resp.status}`; resultEl.style.color = "#f87171"; }
   } catch (err) {
     resultEl.textContent = `连接失败: ${err.message}`;
-    resultEl.style.color = "#ff6b6b";
+    resultEl.style.color = "#f87171";
   }
 }
 
