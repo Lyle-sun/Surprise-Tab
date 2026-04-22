@@ -529,20 +529,30 @@ function renderAiArt() {
   const loading = document.getElementById("aiartLoading");
   const promptEl = document.getElementById("aiartPrompt");
 
-  const seed = Math.floor(Math.random() * 999999);
-  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=768&height=768&seed=${seed}&nologo=true`;
+  let settled = false;
+  const timeout = setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    zone.innerHTML = `<div class="aiart-error">画作生成超时，点击刷新试试</div>`;
+  }, 15000);
 
   img.onload = () => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeout);
     loading.style.display = "none";
     img.style.display = "block";
     promptEl.style.display = "block";
   };
   img.onerror = () => {
-    loading.style.display = "none";
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeout);
     zone.innerHTML = `<div class="aiart-error">画作生成失败，点击刷新试试</div>`;
   };
-  img.src = url;
 
+  const seed = Math.floor(Math.random() * 999999);
+  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true`;
   promptEl.textContent = prompt;
 }
 
@@ -765,7 +775,7 @@ function renderNpc() {
 // 离谱占卜
 // ========================
 
-const ABSurd_PAST_LIVES = [
+const ABSURD_PAST_LIVES = [
   "一块被反复擦除的白板","一只有拖延症的蜗牛","一根被遗忘在角落的耳机线",
   "一颗总是滚走的肉丸","一台只会哼一首歌的收音机","一片被风吹来吹去的塑料袋",
   "一个没人按的电梯按钮","一双永远配不上对的袜子","一块被压在最底层的积木",
