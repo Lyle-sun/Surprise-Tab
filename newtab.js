@@ -796,13 +796,11 @@ function renderHallucination() {
   const zone = createCustomZone();
   const prompt = HALLUCINATION_PROMPTS[Math.floor(Math.random() * HALLUCINATION_PROMPTS.length)];
 
-  const titles = ["幻觉画展","梦境画册","意识流画廊","平行宇宙快照","精神状态可视化"];
-
   zone.innerHTML = `
     <div class="aiart-wrap">
       <div class="aiart-loading" id="aiartLoading">
         <div class="loading-spinner"></div>
-        <p>正在通灵...</p>
+        <p id="aiartStatus">正在通灵...</p>
       </div>
       <img class="aiart-img" id="aiartImg" style="display:none" alt="幻觉画作">
       <div class="aiart-prompt" id="aiartPrompt" style="display:none"></div>
@@ -811,14 +809,34 @@ function renderHallucination() {
 
   const img = document.getElementById("aiartImg");
   const loading = document.getElementById("aiartLoading");
+  const statusEl = document.getElementById("aiartStatus");
   const promptEl = document.getElementById("aiartPrompt");
 
   let settled = false;
+  let retries = 0;
+  const maxRetries = 3;
+  const statusTexts = ["正在通灵...","精神连接不稳定...","重新调整脑电波...","最后一次尝试..."];
+
+  function tryLoad() {
+    if (settled) return;
+    const currentPrompt = retries === 0 ? prompt : HALLUCINATION_PROMPTS[Math.floor(Math.random() * HALLUCINATION_PROMPTS.length)];
+    statusEl.textContent = statusTexts[Math.min(retries, statusTexts.length - 1)];
+    const seed = Math.floor(Math.random() * 999999);
+    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?width=512&height=512&seed=${seed}&nologo=true`;
+    promptEl.textContent = currentPrompt;
+  }
+
   const timeout = setTimeout(() => {
     if (settled) return;
-    settled = true;
-    zone.innerHTML = `<div class="aiart-error">通灵失败，精神频道被占用，点击刷新再试</div>`;
-  }, 15000);
+    retries++;
+    if (retries < maxRetries) {
+      img.src = "";
+      tryLoad();
+    } else {
+      settled = true;
+      zone.innerHTML = `<div class="aiart-error">通灵失败，精神频道被占用<br><span style="font-size:12px;margin-top:8px;display:inline-block">点击刷新再试，或者就当今天没有幻觉</span></div>`;
+    }
+  }, 20000);
 
   img.onload = () => {
     if (settled) return;
@@ -830,14 +848,18 @@ function renderHallucination() {
   };
   img.onerror = () => {
     if (settled) return;
-    settled = true;
-    clearTimeout(timeout);
-    zone.innerHTML = `<div class="aiart-error">通灵失败，精神频道被占用，点击刷新再试</div>`;
+    retries++;
+    if (retries < maxRetries) {
+      img.src = "";
+      setTimeout(tryLoad, 500);
+    } else {
+      settled = true;
+      clearTimeout(timeout);
+      zone.innerHTML = `<div class="aiart-error">通灵失败，精神频道被占用<br><span style="font-size:12px;margin-top:8px;display:inline-block">点击刷新再试，或者就当今天没有幻觉</span></div>`;
+    }
   };
 
-  const seed = Math.floor(Math.random() * 999999);
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&nologo=true`;
-  promptEl.textContent = prompt;
+  tryLoad();
 }
 
 // ========================
