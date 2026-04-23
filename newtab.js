@@ -1326,9 +1326,21 @@ const ANTI_CHICKEN_SOUP = [
   "不要在意别人的眼光——反正他们也没在看你。",
 ];
 
+let chickenIndex = 0;
+let shuffledChickens = [];
+
+function getNextChicken() {
+  if (shuffledChickens.length === 0 || chickenIndex >= shuffledChickens.length) {
+    shuffledChickens = [...ANTI_CHICKEN_SOUP];
+    shuffle(shuffledChickens);
+    chickenIndex = 0;
+  }
+  return shuffledChickens[chickenIndex++];
+}
+
 function renderAntiChicken() {
   const zone = createCustomZone();
-  const soup = ANTI_CHICKEN_SOUP[Math.floor(Math.random() * ANTI_CHICKEN_SOUP.length)];
+  const soup = getNextChicken();
 
   zone.innerHTML = `
     <div class="antichicken-wrap">
