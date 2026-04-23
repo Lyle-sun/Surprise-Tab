@@ -698,12 +698,12 @@ const HALLUCINATION_PROMPTS = [
 ];
 
 const HALLUCINATION_SOURCES = [
-  { name: "flux", label: "通灵频道 A" },
-  { name: "turbo", label: "通灵频道 B（快速）" },
-  { name: "flux-realism", label: "通灵频道 C" },
-  { name: "flux-anime", label: "通灵频道 D（二次元）" },
-  { name: "flux-3d", label: "通灵频道 E" },
-  { name: "sana", label: "通灵频道 F" },
+  { name: "turbo", label: "快速频道" },
+  { name: "flux", label: "标准频道" },
+  { name: "flux-realism", label: "写实频道" },
+  { name: "flux-anime", label: "二次元频道" },
+  { name: "flux-3d", label: "3D 频道" },
+  { name: "sana", label: "备用频道" },
 ];
 
 function renderHallucination() {
@@ -728,39 +728,49 @@ function renderHallucination() {
 
   let settled = false;
   let sourceIdx = 0;
-  const shuffledSources = [...HALLUCINATION_SOURCES].sort(() => Math.random() - 0.5);
+  let perSourceTimer = null;
 
   function tryLoad() {
     if (settled) return;
     const currentPrompt = sourceIdx === 0 ? prompt : HALLUCINATION_PROMPTS[Math.floor(Math.random() * HALLUCINATION_PROMPTS.length)];
-    const source = shuffledSources[sourceIdx];
-    statusEl.textContent = source.label + " 连接中...";
+    const source = HALLUCINATION_SOURCES[sourceIdx];
+    statusEl.textContent = `${source.label} 连接中...（${sourceIdx + 1}/${HALLUCINATION_SOURCES.length}）`;
     const seed = Math.floor(Math.random() * 999999);
-    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=${source.name}`;
+    const ts = Date.now();
+    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?width=384&height=384&seed=${seed}&nologo=true&model=${source.name}&t=${ts}`;
     promptEl.textContent = currentPrompt;
+
+    // 每个频道独立 25 秒超时
+    clearTimeout(perSourceTimer);
+    perSourceTimer = setTimeout(() => {
+      if (settled) return;
+      nextSource();
+    }, 25000);
   }
 
   function nextSource() {
     if (settled) return;
+    clearTimeout(perSourceTimer);
     sourceIdx++;
-    if (sourceIdx < shuffledSources.length) {
-      img.src = "";
-      setTimeout(tryLoad, 300);
+    if (sourceIdx < HALLUCINATION_SOURCES.length) {
+      // 用新 Image 避免旧 onerror 干扰
+      const oldImg = document.getElementById("aiartImg");
+      if (oldImg) {
+        oldImg.onload = null;
+        oldImg.onerror = null;
+        oldImg.removeAttribute("src");
+      }
+      setTimeout(tryLoad, 200);
     } else {
       settled = true;
       renderFallbackArt(zone, prompt);
     }
   }
 
-  const globalTimeout = setTimeout(() => {
-    if (settled) return;
-    nextSource();
-  }, 18000);
-
   img.onload = () => {
     if (settled) return;
     settled = true;
-    clearTimeout(globalTimeout);
+    clearTimeout(perSourceTimer);
     loading.style.display = "none";
     img.style.display = "block";
     promptEl.style.display = "block";
