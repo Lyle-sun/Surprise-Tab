@@ -226,7 +226,7 @@ function shuffle(arr) {
 }
 
 // ========================
-// 生成艺术：粒子 / 万花筒
+// 生成艺术：粒子 / 万花筒 / 疯批模式
 // ========================
 
 function renderArt() {
@@ -234,8 +234,14 @@ function renderArt() {
   canvas.style.display = "block";
   const size = Math.min(560, window.innerWidth - 48);
   canvas.width = size; canvas.height = size;
-  if (Math.random() < 0.5) renderParticles(canvas);
-  else renderKaleidoscope(canvas);
+  const r = Math.random();
+  if (r < 0.12) renderParticles(canvas);
+  else if (r < 0.24) renderKaleidoscope(canvas);
+  else if (r < 0.40) renderEmojiRain(canvas);
+  else if (r < 0.55) renderGlitchArt(canvas);
+  else if (r < 0.70) renderBouncingText(canvas);
+  else if (r < 0.85) renderMeltdown(canvas);
+  else renderScreaming(canvas);
 }
 
 function renderParticles(canvas) {
@@ -300,6 +306,276 @@ function renderKaleidoscope(canvas) {
       ctx.restore();
     }
     t += 0.015; artAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function renderEmojiRain(canvas) {
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  const emojis = ["🤡","💩","🔥","💀","👁","👁️","🦷","🫠","🤯","🧠","🦑","🍆","🫏","🪱","🦠","🫧","🪩","🗿","🫠","🤮","🦴","🫀","🧩","🪅"];
+  const fontSize = 28;
+  const cols = Math.floor(w / fontSize);
+  const drops = Array(cols).fill(0).map(() => Math.random() * -20);
+  const speed = Array(cols).fill(0).map(() => 0.5 + Math.random() * 1.5);
+  const emojiCols = Array(cols).fill(0).map(() => emojis[Math.floor(Math.random() * emojis.length)]);
+
+  const theme = document.documentElement.getAttribute("data-theme");
+  const isDark = theme === "dark" || (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+  function draw() {
+    ctx.fillStyle = isDark ? "rgba(15,15,26,0.12)" : "rgba(245,243,239,0.12)";
+    ctx.fillRect(0, 0, w, h);
+    ctx.font = fontSize + "px serif";
+    for (let i = 0; i < cols; i++) {
+      ctx.fillText(emojiCols[i], i * fontSize, drops[i] * fontSize);
+      drops[i] += speed[i];
+      if (drops[i] * fontSize > h && Math.random() > 0.95) {
+        drops[i] = 0;
+        emojiCols[i] = emojis[Math.floor(Math.random() * emojis.length)];
+        speed[i] = 0.5 + Math.random() * 1.5;
+      }
+    }
+    artAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function renderGlitchArt(canvas) {
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  const theme = document.documentElement.getAttribute("data-theme");
+  const isDark = theme === "dark" || (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const bg = isDark ? "#0f0f1a" : "#f5f3ef";
+  const colors = ["#ff006e","#fb5607","#ffbe0b","#3a86ff","#8338ec","#06d6a0","#ef476f","#118ab2"];
+  let frame = 0;
+
+  function draw() {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+    frame++;
+
+    if (frame % 3 === 0) {
+      const strips = 5 + Math.floor(Math.random() * 15);
+      for (let i = 0; i < strips; i++) {
+        const y = Math.random() * h;
+        const sh = 2 + Math.random() * 30;
+        const offsetX = (Math.random() - 0.5) * 60;
+        const imgData = ctx.getImageData(0, Math.max(0, y), w, Math.min(sh, h - y));
+        ctx.putImageData(imgData, offsetX, y);
+      }
+    }
+
+    if (frame % 2 === 0) {
+      const shapes = 3 + Math.floor(Math.random() * 8);
+      for (let i = 0; i < shapes; i++) {
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)] + (Math.random() * 0.4 + 0.1).toFixed(1);
+        const x = Math.random() * w, y = Math.random() * h;
+        const sw = 10 + Math.random() * 120, sh = 2 + Math.random() * 40;
+        ctx.fillRect(x, y, sw, sh);
+      }
+    }
+
+    if (Math.random() < 0.15) {
+      ctx.font = `${20 + Math.random() * 40}px monospace`;
+      ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+      const glitchTexts = ["ERROR","404","???","HELP","NaN","undefined","∞","NOPE","AHHH","!!!","404","BUG","💀","AAAA"];
+      ctx.fillText(glitchTexts[Math.floor(Math.random() * glitchTexts.length)], Math.random() * w, Math.random() * h);
+    }
+
+    artAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function renderBouncingText(canvas) {
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  const theme = document.documentElement.getAttribute("data-theme");
+  const isDark = theme === "dark" || (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+  const words = [
+    { text: "啊？？", size: 52 }, { text: "救命", size: 44 }, { text: "等等", size: 38 },
+    { text: "不是", size: 48 }, { text: "离谱", size: 56 }, { text: "啊这", size: 42 },
+    { text: "算了", size: 36 }, { text: "草", size: 72 }, { text: "？？？", size: 50 },
+    { text: "完了", size: 46 }, { text: "不要", size: 40 }, { text: "嗯？", size: 44 },
+    { text: "啊对对对", size: 34 }, { text: "我裂开", size: 38 }, { text: "好家伙", size: 36 },
+    { text: "寄", size: 64 }, { text: "6", size: 80 }, { text: "？？", size: 60 },
+    { text: "救命啊", size: 48 }, { text: "摆烂", size: 44 }, { text: "阿巴阿巴", size: 32 },
+  ];
+  const colors = ["#ff006e","#fb5607","#ffbe0b","#3a86ff","#8338ec","#06d6a0","#ef476f","#ff0000"];
+
+  const balls = words.map(w => ({
+    x: Math.random() * (canvas.width - 100) + 50,
+    y: Math.random() * (canvas.height - 100) + 50,
+    vx: (Math.random() - 0.5) * 6,
+    vy: (Math.random() - 0.5) * 6,
+    text: w.text,
+    size: w.size,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rot: 0,
+    rotV: (Math.random() - 0.5) * 0.15,
+    scale: 1,
+    scaleV: (Math.random() - 0.5) * 0.02,
+  }));
+
+  function draw() {
+    ctx.fillStyle = isDark ? "rgba(15,15,26,0.15)" : "rgba(245,243,239,0.15)";
+    ctx.fillRect(0, 0, w, h);
+    for (const b of balls) {
+      b.x += b.vx; b.y += b.vy; b.rot += b.rotV;
+      b.scale += b.scaleV;
+      if (b.scale > 1.3 || b.scale < 0.7) b.scaleV *= -1;
+      if (b.x < 20 || b.x > w - 20) { b.vx *= -1.05; b.color = colors[Math.floor(Math.random() * colors.length)]; }
+      if (b.y < 20 || b.y > h - 20) { b.vy *= -1.05; b.color = colors[Math.floor(Math.random() * colors.length)]; }
+      const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+      if (speed > 12) { b.vx *= 0.9; b.vy *= 0.9; }
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.rot);
+      ctx.scale(b.scale, b.scale);
+      ctx.font = `bold ${b.size}px -apple-system, sans-serif`;
+      ctx.fillStyle = b.color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = b.color;
+      ctx.shadowBlur = 8;
+      ctx.fillText(b.text, 0, 0);
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+    artAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function renderMeltdown(canvas) {
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  let t = 0;
+  const colors = ["#ff0000","#ff6600","#ffcc00","#ff00ff","#00ffff","#ff0066"];
+  const screamTexts = ["A","H","H","H","!","!","!","?","?","?","NO","WHY","HELP","AAA","!!!","NaN","404","F"];
+  const blobs = Array.from({ length: 30 }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    r: 20 + Math.random() * 80,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 3,
+    vy: Math.random() * 2 + 1,
+    phase: Math.random() * Math.PI * 2,
+  }));
+
+  function draw() {
+    ctx.fillStyle = `rgba(0,0,0,0.06)`;
+    ctx.fillRect(0, 0, w, h);
+    t += 0.03;
+
+    for (const b of blobs) {
+      b.x += b.vx + Math.sin(t + b.phase) * 2;
+      b.y += b.vy;
+      if (b.y > h + b.r) { b.y = -b.r; b.x = Math.random() * w; }
+      if (b.x < -b.r || b.x > w + b.r) b.vx *= -1;
+
+      const pulsedR = b.r + Math.sin(t * 3 + b.phase) * 10;
+      const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, Math.max(1, pulsedR));
+      grad.addColorStop(0, b.color + "cc");
+      grad.addColorStop(0.5, b.color + "44");
+      grad.addColorStop(1, b.color + "00");
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, Math.max(1, pulsedR), 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    if (Math.random() < 0.3) {
+      ctx.font = `bold ${30 + Math.random() * 60}px monospace`;
+      ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+      ctx.globalAlpha = 0.3 + Math.random() * 0.5;
+      ctx.save();
+      ctx.translate(Math.random() * w, Math.random() * h);
+      ctx.rotate((Math.random() - 0.5) * 1.5);
+      ctx.fillText(screamTexts[Math.floor(Math.random() * screamTexts.length)], 0, 0);
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    }
+
+    artAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function renderScreaming(canvas) {
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  let t = 0;
+  const faces = Array.from({ length: 12 }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    size: 30 + Math.random() * 50,
+    vx: (Math.random() - 0.5) * 5,
+    vy: (Math.random() - 0.5) * 5,
+    mouthOpen: Math.random(),
+    phase: Math.random() * Math.PI * 2,
+    hue: Math.random() * 360,
+  }));
+
+  function drawFace(f) {
+    ctx.save();
+    ctx.translate(f.x, f.y);
+    const squeeze = 1 + Math.sin(t * 4 + f.phase) * 0.15;
+    ctx.scale(squeeze, 2 - squeeze);
+
+    ctx.beginPath();
+    ctx.arc(0, 0, f.size / 2, 0, Math.PI * 2);
+    ctx.fillStyle = `hsl(${f.hue}, 70%, 60%)`;
+    ctx.fill();
+    ctx.strokeStyle = `hsl(${f.hue}, 70%, 40%)`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    const eyeY = -f.size * 0.12;
+    const eyeSpread = f.size * 0.18;
+    const eyeSize = f.size * 0.08;
+    const panic = Math.sin(t * 5 + f.phase) * 0.5 + 0.5;
+    ctx.fillStyle = "#fff";
+    ctx.beginPath(); ctx.arc(-eyeSpread, eyeY, eyeSize * (1 + panic), 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(eyeSpread, eyeY, eyeSize * (1 + panic), 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#000";
+    ctx.beginPath(); ctx.arc(-eyeSpread, eyeY, eyeSize * 0.4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(eyeSpread, eyeY, eyeSize * 0.4, 0, Math.PI * 2); ctx.fill();
+
+    const mouthH = f.size * 0.15 * (1 + Math.sin(t * 6 + f.phase) * 0.5);
+    const mouthW = f.size * 0.2;
+    ctx.beginPath();
+    ctx.ellipse(0, f.size * 0.15, mouthW, mouthH, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#300";
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.fillStyle = "rgba(10,0,0,0.08)";
+    ctx.fillRect(0, 0, w, h);
+    t += 0.02;
+
+    for (const f of faces) {
+      f.x += f.vx; f.y += f.vy;
+      f.hue += 0.5;
+      if (f.x < f.size / 2 || f.x > w - f.size / 2) { f.vx *= -1.1; f.hue = Math.random() * 360; }
+      if (f.y < f.size / 2 || f.y > h - f.size / 2) { f.vy *= -1.1; f.hue = Math.random() * 360; }
+      const speed = Math.sqrt(f.vx * f.vx + f.vy * f.vy);
+      if (speed > 10) { f.vx *= 0.9; f.vy *= 0.9; }
+      drawFace(f);
+    }
+
+    if (Math.random() < 0.05) {
+      ctx.font = `bold ${20 + Math.random() * 30}px monospace`;
+      ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 60%)`;
+      ctx.fillText("AAAAA", Math.random() * w, Math.random() * h);
+    }
+
+    artAnimId = requestAnimationFrame(draw);
   }
   draw();
 }
