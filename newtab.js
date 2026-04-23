@@ -792,6 +792,15 @@ const HALLUCINATION_PROMPTS = [
   "a toilet seat that has been elected president, giving an address from the oval bathroom, presidential portrait",
 ];
 
+const HALLUCINATION_SOURCES = [
+  { name: "flux", label: "通灵频道 A" },
+  { name: "turbo", label: "通灵频道 B（快速）" },
+  { name: "flux-realism", label: "通灵频道 C" },
+  { name: "flux-anime", label: "通灵频道 D（二次元）" },
+  { name: "flux-3d", label: "通灵频道 E" },
+  { name: "sana", label: "通灵频道 F" },
+];
+
 function renderHallucination() {
   const zone = createCustomZone();
   const prompt = HALLUCINATION_PROMPTS[Math.floor(Math.random() * HALLUCINATION_PROMPTS.length)];
@@ -813,53 +822,90 @@ function renderHallucination() {
   const promptEl = document.getElementById("aiartPrompt");
 
   let settled = false;
-  let retries = 0;
-  const maxRetries = 3;
-  const statusTexts = ["正在通灵...","精神连接不稳定...","重新调整脑电波...","最后一次尝试..."];
+  let sourceIdx = 0;
+  const shuffledSources = [...HALLUCINATION_SOURCES].sort(() => Math.random() - 0.5);
 
   function tryLoad() {
     if (settled) return;
-    const currentPrompt = retries === 0 ? prompt : HALLUCINATION_PROMPTS[Math.floor(Math.random() * HALLUCINATION_PROMPTS.length)];
-    statusEl.textContent = statusTexts[Math.min(retries, statusTexts.length - 1)];
+    const currentPrompt = sourceIdx === 0 ? prompt : HALLUCINATION_PROMPTS[Math.floor(Math.random() * HALLUCINATION_PROMPTS.length)];
+    const source = shuffledSources[sourceIdx];
+    statusEl.textContent = source.label + " 连接中...";
     const seed = Math.floor(Math.random() * 999999);
-    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?width=512&height=512&seed=${seed}&nologo=true`;
+    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?width=512&height=512&seed=${seed}&nologo=true&model=${source.name}`;
     promptEl.textContent = currentPrompt;
   }
 
-  const timeout = setTimeout(() => {
+  function nextSource() {
     if (settled) return;
-    retries++;
-    if (retries < maxRetries) {
+    sourceIdx++;
+    if (sourceIdx < shuffledSources.length) {
       img.src = "";
-      tryLoad();
+      setTimeout(tryLoad, 300);
     } else {
       settled = true;
-      zone.innerHTML = `<div class="aiart-error">通灵失败，精神频道被占用<br><span style="font-size:12px;margin-top:8px;display:inline-block">点击刷新再试，或者就当今天没有幻觉</span></div>`;
+      renderFallbackArt(zone, prompt);
     }
-  }, 20000);
+  }
+
+  const globalTimeout = setTimeout(() => {
+    if (settled) return;
+    nextSource();
+  }, 18000);
 
   img.onload = () => {
     if (settled) return;
     settled = true;
-    clearTimeout(timeout);
+    clearTimeout(globalTimeout);
     loading.style.display = "none";
     img.style.display = "block";
     promptEl.style.display = "block";
   };
   img.onerror = () => {
     if (settled) return;
-    retries++;
-    if (retries < maxRetries) {
-      img.src = "";
-      setTimeout(tryLoad, 500);
-    } else {
-      settled = true;
-      clearTimeout(timeout);
-      zone.innerHTML = `<div class="aiart-error">通灵失败，精神频道被占用<br><span style="font-size:12px;margin-top:8px;display:inline-block">点击刷新再试，或者就当今天没有幻觉</span></div>`;
-    }
+    nextSource();
   };
 
   tryLoad();
+}
+
+function renderFallbackArt(zone, prompt) {
+  zone.innerHTML = `
+    <div class="aiart-wrap">
+      <div class="aiart-fallback" style="text-align:center;padding:20px 0">
+        <canvas id="fallbackCanvas" width="400" height="400" style="border-radius:16px;max-width:100%"></canvas>
+        <div class="aiart-prompt" style="display:block;margin-top:16px;font-size:13px;color:var(--text-dim);font-style:italic">${prompt}</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-dim);opacity:0.7">精神频道全部占线，以上为本地脑补画面</div>
+      </div>
+    </div>
+  `;
+  const canvas = document.getElementById("fallbackCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const w = 400, h = 400;
+  const colors = ["#ff006e","#fb5607","#ffbe0b","#3a86ff","#8338ec","#06d6a0","#ef476f","#ff0000","#00ff00"];
+  ctx.fillStyle = "#0f0f1a";
+  ctx.fillRect(0, 0, w, h);
+
+  const blobs = Array.from({ length: 15 }, () => ({
+    x: Math.random() * w, y: Math.random() * h,
+    r: 30 + Math.random() * 80,
+    color: colors[Math.floor(Math.random() * colors.length)],
+  }));
+  for (const b of blobs) {
+    const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, Math.max(1, b.r));
+    grad.addColorStop(0, b.color + "aa");
+    grad.addColorStop(1, b.color + "00");
+    ctx.beginPath(); ctx.arc(b.x, b.y, Math.max(1, b.r), 0, Math.PI * 2);
+    ctx.fillStyle = grad; ctx.fill();
+  }
+
+  ctx.font = "bold 24px -apple-system, sans-serif";
+  ctx.fillStyle = "#fff";
+  ctx.textAlign = "center";
+  ctx.fillText("📡 信号丢失", w / 2, h / 2 - 20);
+  ctx.font = "16px -apple-system, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.fillText("以上为脑补画面，仅供参考", w / 2, h / 2 + 15);
 }
 
 // ========================
