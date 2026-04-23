@@ -1346,6 +1346,14 @@ const PERSONA_ROLES = [
   "永远踩到乐高的光脚大侠","对周一过敏的上班族","自带BGM的路人",
   "能听见WiFi信号的声音的调音师","说话自带弹幕的人","永远分清左和右之前要先想一下的司机",
   "对薛定谔的猫过敏的兽医","时间感知偏差3小时的闹钟","只会用反问句回答问题的哲学家",
+  "只会用第三人称说话的物业","能看见别人焦虑颜色的心理咨询师（但自己更焦虑）",
+  "呼吸自带进度条的打工人","只会用感叹号写代码的程序员","走路自带慢动作特效的人",
+  "能跟电器对话但电器都嫌弃他的修理工","永远走错厕所的导航员",
+  "笑点跟哭点重合的喜剧演员","只能在停电时发挥实力的画家",
+  "对平行宇宙的自己有嫉妒心的普通人","能预判外卖到达时间但永远算错自己上班时间的预言家",
+  "只会用翻译软件跟人说话的内向者","手机永远只剩1%电量的旅行家",
+  "能把任何歌听成摇篮曲的失眠者","做梦会梦到别人密码的黑客",
+  "自带回音的灵魂歌手","对「在吗」两个字有PTSD的社畜",
 ];
 
 const PERSONA_WEAKNESSES = [
@@ -1354,6 +1362,11 @@ const PERSONA_WEAKNESSES = [
   "别人在后面看我操作电脑","闹钟响了但不想起","被人叫全名","排队",
   "做自我介绍","接到电话","忘带钥匙","听到「我们聊聊」","看到「已读」",
   "别人偷看手机屏幕","超市结账时排队排到最慢的那列",
+  "别人说「你开心就好」","听到「我们随便聊聊」","手机自动更新",
+  "超市找不到购物车","外卖超时","被夸奖（不知道怎么回）",
+  "电梯里遇到半熟不熟的人","打开冰箱忘了要拿什么","说了「马上到」但其实还没出门",
+  "收到语音消息超过30秒","群聊被@","听到「有个事找你帮忙」",
+  "别人在你旁边打电话","密码错误3次","不小心点赞了三年前的朋友圈",
 ];
 
 const PERSONA_ITEMS = [
@@ -1365,6 +1378,13 @@ const PERSONA_ITEMS = [
   "一个叫「新建文件夹(3)」的文件夹","一袋忘记放冰箱的外卖",
   "一把永远找不到的钥匙","一张没写完的待办清单",
   "一个永远停在99%的进度条",
+  "一条洗了缩水但还穿的裤子","一双磨平了底的拖鞋（但不舍得扔）",
+  "一个裂了屏的平板（用来盖泡面刚好）","一包永远抽不到第一张的纸巾",
+  "一个闹钟设了7个但永远只响最后一个","一张健身卡（只用了一次，办卡那天）",
+  "一个永远找不到盖子的保温杯","一本只写了前三页的日记本",
+  "一个密码忘了的旧手机","一盒只剩一颗的药",
+  "一把伞但永远在下雨天忘在家里","一包开了封但再也没吃过的零食",
+  "一个「稍后阅读」里存了200篇但一篇没读的书签文件夹",
 ];
 
 const PERSONA_GOALS = [
@@ -1376,6 +1396,24 @@ const PERSONA_GOALS = [
   "让WiFi信号覆盖整个宇宙","在梦中写完所有代码",
   "让闹钟响了之后真的能起来","让今天的工作在昨天就做完",
   "找到遥控器永远的归宿",
+  "把所有密码统一成一个（然后忘了是哪个）","把冰箱里过期的东西全扔了（包括自己）",
+  "学会一门外语（只会说你好和厕所在哪）","把收藏夹里的东西全看一遍",
+  "让手机自动回复所有人「好的收到」","完成那个三年前开始的项目",
+  "在凌晨1点之前关掉手机","跟镜子里的自己和解",
+  "找到一种不会困的咖啡","让洗衣机不要吃袜子",
+  "学会做一道菜（煮方便面不算）","把衣柜里三年没穿的衣服全清理掉",
+  "不再把「明天做」当代词","让电脑不要在开会时弹出更新",
+  "实现超市自助结账零报错",
+];
+
+const PERSONA_CURSES = [
+  "每次开门都会撞到手肘","说「明天一定早起」的第二天一定起不来",
+  "外卖永远比预计多15分钟","刚洗完车就下雨","一穿白衣服必溅汤汁",
+  "手机永远在需要时没电","排哪队哪队最慢","一减肥就有人请客",
+  "说「我不困」的5秒后打哈欠","一翘课就点名","刚坐下就想上厕所",
+  "密码永远要在第三次才输对","耳机线永远在口袋里打结","出门必忘带一样东西",
+  "说了「我没事」的0.5秒后开始emo","一关闹钟就睡过头","一装正经就出丑",
+  "说「这次稳了」的下一秒翻车","充电线永远不够长",
 ];
 
 function renderPersona() {
@@ -1384,6 +1422,7 @@ function renderPersona() {
   const weakness = PERSONA_WEAKNESSES[Math.floor(Math.random() * PERSONA_WEAKNESSES.length)];
   const item = PERSONA_ITEMS[Math.floor(Math.random() * PERSONA_ITEMS.length)];
   const goal = PERSONA_GOALS[Math.floor(Math.random() * PERSONA_GOALS.length)];
+  const curse = PERSONA_CURSES[Math.floor(Math.random() * PERSONA_CURSES.length)];
   const stats = {
     "智商": Math.floor(Math.random() * 60) + 40,
     "情商": Math.floor(Math.random() * 60) + 40,
@@ -1401,6 +1440,7 @@ function renderPersona() {
         <div class="persona-row"><span class="persona-label">💀 弱点</span><span class="persona-value">${weakness}</span></div>
         <div class="persona-row"><span class="persona-label">🎒 随身物品</span><span class="persona-value">${item}</span></div>
         <div class="persona-row"><span class="persona-label">🎯 今日目标</span><span class="persona-value">${goal}</span></div>
+        <div class="persona-row"><span class="persona-label">👁 今日诅咒</span><span class="persona-value" style="color:var(--red)">${curse}</span></div>
       </div>
       <div class="persona-stats">
         ${Object.entries(stats).map(([k, v]) => `
