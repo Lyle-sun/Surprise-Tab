@@ -31,20 +31,19 @@ function cycleTheme() {
 
 function pickMode() {
   const r = Math.random();
-  if (r < 0.07) return "game";
+  if (r < 0.06) return "game";
   if (r < 0.14) return "art";
-  if (r < 0.21) return "joke";
-  if (r < 0.27) return "decide";
-  if (r < 0.33) return "fortune";
-  if (r < 0.43) return "aiart";
-  if (r < 0.48) return "easter";
-  if (r < 0.55) return "npc";
-  if (r < 0.62) return "absurd";
-  if (r < 0.69) return "fakenews";
-  if (r < 0.76) return "nottoday";
-  if (r < 0.83) return "skill";
-  if (r < 0.88) return "antichicken";
-  if (r < 0.93) return "persona";
+  if (r < 0.22) return "joke";
+  if (r < 0.29) return "decide";
+  if (r < 0.37) return "aiart";
+  if (r < 0.42) return "easter";
+  if (r < 0.49) return "npc";
+  if (r < 0.56) return "absurd";
+  if (r < 0.63) return "fakenews";
+  if (r < 0.70) return "nottoday";
+  if (r < 0.77) return "skill";
+  if (r < 0.83) return "antichicken";
+  if (r < 0.89) return "persona";
   return "nonsense";
 }
 
@@ -94,11 +93,10 @@ function renderToday(forceNew = false) {
 
   const badge = document.getElementById("modeBadge");
   const labels = {
-    game:   { text: "🎮 今日小游戏", cls: "game" },
-    art:    { text: "🎨 生成艺术",   cls: "art" },
+    game:   { text: "🎮 疯批游戏",   cls: "game" },
+    art:    { text: "🎨 精神污染",   cls: "art" },
     joke:   { text: "😂 冷笑话",     cls: "joke" },
-    decide: { text: "🎲 帮我选",     cls: "decide" },
-    fortune:{ text: "🔮 今日运势",   cls: "fortune" },
+    decide: { text: "🎲 帮你选",     cls: "decide" },
     aiart:  { text: "🖼️ 幻觉画展",    cls: "aiart" },
     easter: { text: "🥚 ???",        cls: "easter" },
     npc:    { text: "🤖 离谱对话",   cls: "npc" },
@@ -114,32 +112,34 @@ function renderToday(forceNew = false) {
   badge.textContent = l.text;
   badge.className = "mode-badge " + l.cls;
 
-  const renderers = { game: renderGame, art: renderArt, joke: renderJoke, decide: renderDecide, fortune: renderFortune, aiart: renderHallucination, easter: renderEaster, npc: renderNpc, absurd: renderAbsurd, fakenews: renderFakeNews, nottoday: renderNotToday, skill: renderSkill, antichicken: renderAntiChicken, persona: renderPersona, nonsense: renderNonsense };
+  const renderers = { game: renderGame, art: renderArt, joke: renderJoke, decide: renderDecide, aiart: renderHallucination, easter: renderEaster, npc: renderNpc, absurd: renderAbsurd, fakenews: renderFakeNews, nottoday: renderNotToday, skill: renderSkill, antichicken: renderAntiChicken, persona: renderPersona, nonsense: renderNonsense };
   (renderers[mode] || renderers.game)();
 }
 
 // ========================
-// 游戏：翻牌配对 / 猜数字
+// 游戏：离谱版
 // ========================
 
 function renderGame() {
   const zone = document.getElementById("gameZone");
   zone.style.display = "block";
   zone.innerHTML = "";
-  if (Math.random() < 0.5) renderMemoryGame(zone);
-  else renderGuessGame(zone);
+  const r = Math.random();
+  if (r < 0.5) renderCrazyMemoryGame(zone);
+  else renderCrazyGuessGame(zone);
 }
 
-function renderMemoryGame(zone) {
-  const emojis = ["🎯","🔥","💎","🌈","🚀","🎪","🍕","🎵"];
+function renderCrazyMemoryGame(zone) {
+  const emojis = ["🤡","💀","👁","🫠","🦑","🪱","🤮","🗿","🫀","🦴"];
   let pairs = [...emojis, ...emojis];
   shuffle(pairs);
 
   let flippedCards = [], matchedCount = 0, moves = 0, locked = false;
+  const taunts = ["你认真的吗？","就这？","我奶奶都比你快","醒醒","别慌，越慌越慢","这是简单的部分","要不喝口水再来？","你的记忆力跟WiFi一样不稳定"];
 
   zone.innerHTML = `
-    <div class="game-title">翻牌配对</div>
-    <div class="game-info" id="memoryInfo">翻开卡片找到相同的配对！步数: 0</div>
+    <div class="game-title">疯批翻牌</div>
+    <div class="game-info" id="memoryInfo">翻到一样的配对！步数: 0 | ${taunts[0]}</div>
     <div class="card-grid cols-4" id="memoryGrid"></div>
   `;
 
@@ -161,15 +161,19 @@ function renderMemoryGame(zone) {
 
       if (flippedCards.length === 2) {
         moves++;
-        document.getElementById("memoryInfo").textContent = `翻开卡片找到相同的配对！步数: ${moves}`;
+        const taunt = moves > 8 ? taunts[Math.floor(Math.random() * taunts.length)] : "";
+        document.getElementById("memoryInfo").textContent = `翻到一样的配对！步数: ${moves} | ${taunt}`;
         locked = true;
         const [a, b] = flippedCards;
         if (a.querySelector(".flip-card-back").textContent === b.querySelector(".flip-card-back").textContent) {
           a.classList.add("matched"); b.classList.add("matched");
           matchedCount += 2; flippedCards = []; locked = false;
-          if (matchedCount === pairs.length) document.getElementById("memoryInfo").textContent = `🎉 通关！用了 ${moves} 步`;
+          if (matchedCount === pairs.length) {
+            const verdict = moves <= 12 ? "🧠 你脑子没坏！" : moves <= 20 ? "还行，但也就那样" : "💀 这个步数...你确定你清醒的？";
+            document.getElementById("memoryInfo").textContent = `${verdict}（${moves} 步）`;
+          }
         } else {
-          setTimeout(() => { a.classList.remove("flipped"); b.classList.remove("flipped"); flippedCards = []; locked = false; }, 800);
+          setTimeout(() => { a.classList.remove("flipped"); b.classList.remove("flipped"); flippedCards = []; locked = false; }, 600);
         }
       }
     });
@@ -177,16 +181,27 @@ function renderMemoryGame(zone) {
   });
 }
 
-function renderGuessGame(zone) {
-  const target = Math.floor(Math.random() * 100) + 1;
+function renderCrazyGuessGame(zone) {
+  const targets = [
+    { range: "一个离谱的数字", min: -999, max: 999 },
+    { range: "一个精神状态指数", min: -100, max: 100 },
+    { range: "你还有多少根头发", min: 0, max: 10000 },
+  ];
+  const t = targets[Math.floor(Math.random() * targets.length)];
+  const target = Math.floor(Math.random() * (t.max - t.min + 1)) + t.min;
   let guesses = [], won = false;
 
+  const hints = {
+    high: ["大了大了！冷静点","你是不是对所有事都这么夸张？","往回收一收，别那么贪","数字不是越大越好"],
+    low: ["小了！胆子大点","你是不是对什么都太保守了？","格局小了","再大胆一点"],
+  };
+
   zone.innerHTML = `
-    <div class="game-title">猜数字</div>
-    <div class="game-info">我想了一个 1~100 之间的数字</div>
+    <div class="game-title">疯批猜数字</div>
+    <div class="game-info">猜${t.range}（${t.min}~${t.max}）</div>
     <div class="guess-zone">
       <div class="guess-input-row">
-        <input type="number" class="guess-input" id="guessInput" min="1" max="100" placeholder="?">
+        <input type="number" class="guess-input" id="guessInput" min="${t.min}" max="${t.max}" placeholder="?">
         <button class="guess-btn" id="guessBtn">猜</button>
       </div>
       <div class="guess-history" id="guessHistory"></div>
@@ -202,15 +217,21 @@ function renderGuessGame(zone) {
   function doGuess() {
     if (won) return;
     const n = parseInt(input.value);
-    if (isNaN(n) || n < 1 || n > 100) return;
+    if (isNaN(n)) return;
     input.value = "";
     const tag = document.createElement("span");
     tag.className = "guess-tag";
     if (n === target) {
       tag.textContent = `${n} ✓`; tag.className = "guess-tag correct"; won = true; btn.disabled = true;
-      result.textContent = `🎉 猜对了！用了 ${guesses.length + 1} 次`;
-    } else if (n > target) { tag.textContent = `${n} 太大了`; tag.className = "guess-tag high"; }
-    else { tag.textContent = `${n} 太小了`; tag.className = "guess-tag low"; }
+      const verdict = guesses.length + 1 <= 3 ? "🧠 读取了你的脑电波" : guesses.length + 1 <= 7 ? "还行，算你有点直觉" : "💀 这么多次...数字都快认识你了";
+      result.textContent = verdict;
+    } else if (n > target) {
+      const h = hints.high[Math.floor(Math.random() * hints.high.length)];
+      tag.textContent = `${n} ${h}`; tag.className = "guess-tag high";
+    } else {
+      const h = hints.low[Math.floor(Math.random() * hints.low.length)];
+      tag.textContent = `${n} ${h}`; tag.className = "guess-tag low";
+    }
     guesses.push(n); history.appendChild(tag); input.focus();
   }
   btn.addEventListener("click", doGuess);
@@ -226,7 +247,7 @@ function shuffle(arr) {
 }
 
 // ========================
-// 生成艺术：粒子 / 万花筒 / 疯批模式
+// 精神污染：全疯模式
 // ========================
 
 function renderArt() {
@@ -235,79 +256,11 @@ function renderArt() {
   const size = Math.min(560, window.innerWidth - 48);
   canvas.width = size; canvas.height = size;
   const r = Math.random();
-  if (r < 0.12) renderParticles(canvas);
-  else if (r < 0.24) renderKaleidoscope(canvas);
-  else if (r < 0.40) renderEmojiRain(canvas);
-  else if (r < 0.55) renderGlitchArt(canvas);
-  else if (r < 0.70) renderBouncingText(canvas);
-  else if (r < 0.85) renderMeltdown(canvas);
+  if (r < 0.20) renderEmojiRain(canvas);
+  else if (r < 0.40) renderGlitchArt(canvas);
+  else if (r < 0.60) renderBouncingText(canvas);
+  else if (r < 0.80) renderMeltdown(canvas);
   else renderScreaming(canvas);
-}
-
-function renderParticles(canvas) {
-  const ctx = canvas.getContext("2d");
-  const w = canvas.width, h = canvas.height;
-  const count = 60, maxDist = 100;
-  const theme = document.documentElement.getAttribute("data-theme");
-  const isDark = theme === "dark" || (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  const c = isDark ? "244,132,95" : "91,82,238";
-  const particles = Array.from({ length: count }, () => ({
-    x: Math.random() * w, y: Math.random() * h,
-    vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8,
-    r: Math.random() * 2 + 1.5,
-  }));
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-    for (let i = 0; i < count; i++) {
-      const p = particles[i];
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0 || p.x > w) p.vx *= -1;
-      if (p.y < 0 || p.y > h) p.vy *= -1;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${c},0.8)`; ctx.fill();
-      for (let j = i + 1; j < count; j++) {
-        const q = particles[j], dx = p.x - q.x, dy = p.y - q.y, dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < maxDist) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.strokeStyle = `rgba(${c},${(0.2 * (1 - dist / maxDist)).toFixed(2)})`; ctx.stroke(); }
-      }
-    }
-    artAnimId = requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function renderKaleidoscope(canvas) {
-  const ctx = canvas.getContext("2d");
-  const w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2;
-  const segments = 8, angleStep = (Math.PI * 2) / segments;
-  let t = 0;
-  const theme = document.documentElement.getAttribute("data-theme");
-  const isDark = theme === "dark" || (theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  const colors = isDark ? ["#f4845f","#c3aed6","#5ee0d8","#ffd97a","#ff9090"] : ["#5b52ee","#845ec2","#4ecdc4","#ffc75f","#f472b6"];
-  function draw() {
-    ctx.fillStyle = isDark ? "rgba(15,15,26,0.15)" : "rgba(245,243,239,0.15)";
-    ctx.fillRect(0, 0, w, h);
-    for (let s = 0; s < segments; s++) {
-      ctx.save(); ctx.translate(cx, cy); ctx.rotate(s * angleStep + t * 0.3);
-      if (s % 2 === 1) ctx.scale(1, -1);
-      for (let i = 0; i < 4; i++) {
-        const r = 40 + i * 30 + Math.sin(t + i) * 20;
-        const x = r * Math.cos(t * 0.5 + i), y = r * Math.sin(t * 0.7 + i);
-        const sz = 8 + Math.sin(t * 1.2 + i * 2) * 5;
-        ctx.beginPath(); ctx.arc(x, y, Math.max(1, sz), 0, Math.PI * 2);
-        ctx.fillStyle = colors[i % colors.length] + "aa"; ctx.fill();
-      }
-      ctx.beginPath();
-      for (let i = 0; i < 4; i++) {
-        const r = 40 + i * 30 + Math.sin(t + i) * 20;
-        const x = r * Math.cos(t * 0.5 + i), y = r * Math.sin(t * 0.7 + i);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = colors[0] + "44"; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.restore();
-    }
-    t += 0.015; artAnimId = requestAnimationFrame(draw);
-  }
-  draw();
 }
 
 function renderEmojiRain(canvas) {
@@ -638,16 +591,16 @@ function renderJoke() {
 }
 
 // ========================
-// 随机决策器
+// 随机决策器（离谱版）
 // ========================
 
 function renderDecide() {
   const zone = createCustomZone();
   const categories = [
-    { name: "今天吃什么", items: ["火锅","烤肉","寿司","螺蛳粉","沙拉","披萨","麻辣烫","汉堡","粥","炒菜","拉面","饺子","轻食","煲仔饭","炸鸡"] },
-    { name: "看什么电影", items: ["科幻片","喜剧片","悬疑片","动作片","动画片","纪录片","爱情片","恐怖片","剧情片"] },
-    { name: "做什么运动", items: ["跑步","游泳","瑜伽","骑车","跳绳","散步","健身","打球","跳舞"] },
-    { name: "听什么音乐", items: ["流行","摇滚","古典","爵士","电子","民谣","R&B","说唱","轻音乐"] },
+    { name: "今天怎么活", items: ["装死","原地飞升","变成蘑菇","进入省电模式","光合作用","假装自己是NPC","时空冻结5分钟","启动紧急摆烂协议","召唤替身代班","物理断联24小时"] },
+    { name: "下班后干嘛", items: ["跟冰箱聊天","给手机办个葬礼","练习用意念关门","数天花板有多少个点","跟蚊子谈判","在脑内重拍一部电影","把今天的bug写成诗","跟镜子里的自己下棋","学猫叫三声看看会发生什么","假装自己是一部正在更新的手机"] },
+    { name: "用什么方式面对老板", items: ["翻译成猫语再回复","全程用emoji沟通","假装信号不好","发一张风景图说「收到」","把老板消息转发给Siri处理","回复「嗯」然后反悔","假装是AI客服","每句话后面加个「汪」","只回一个句号","装作已读不回但其实是没看懂"] },
+    { name: "如何应对社交", items: ["突然开始做拉伸","假装接到一个很重要的电话","默默走开假装有事","说「我马桶好像在叫我了」","打开手机假装在看很急的消息","开始数地板砖","说一句「啊对对对」然后消失","假装自己在加载中","突然用第三人称说话","微笑，然后转身走，不回头"] },
   ];
 
   zone.innerHTML = `
@@ -655,7 +608,7 @@ function renderDecide() {
       <div class="decide-title">🎲 帮你选！</div>
       <div class="decide-cats" id="decideCats"></div>
       <div class="decide-result" id="decideResult" style="display:none"></div>
-      <button class="decide-btn" id="decideBtn" style="display:none">就它了！</button>
+      <button class="decide-btn" id="decideBtn" style="display:none">不满意，再选</button>
       <div class="decide-animation" id="decideAnim" style="display:none"></div>
     </div>
   `;
@@ -700,54 +653,6 @@ function startDecide(cat, zone) {
       });
     }
   }, 80);
-}
-
-// ========================
-// 今日运势
-// ========================
-
-function renderFortune() {
-  const zone = createCustomZone();
-  const seed = getTodayString() + navigator.userAgent;
-  let hash = 0;
-  for (const ch of seed) hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0;
-  const idx = Math.abs(hash);
-
-  const luckLevels = ["大吉","中吉","小吉","吉","末吉","凶","大凶"];
-  const luck = luckLevels[idx % luckLevels.length];
-
-  const aspects = [
-    { name: "事业", pool: ["今天适合推进重要项目","开会时大胆发言会有意外收获","别急着做决定，再想想","适合跟领导提加薪","摸鱼一天也不会被发现","你的方案会被认可","低调做事，高调出结果"] },
-    { name: "爱情", pool: ["有人正在想你","今天可能收到一条意想不到的消息","主动一点，故事就开始了","独处也挺好的","记得回那个人的消息","适合表白","今天桃花运不错"] },
-    { name: "财运", pool: ["意外之财在路上","今天别乱花钱","投资需谨慎","省下的就是赚到的","出门可能捡到钱","奶茶买一送一就是今天的财运","你的钱包在颤抖"] },
-    { name: "健康", pool: ["今天精力充沛","早点休息","多喝水","适合运动","别熬夜","注意肩颈","散步有助于思考"] },
-  ];
-
-  const luckyNum = (idx % 99) + 1;
-  const luckyColor = ["红色","橙色","金色","绿色","蓝色","紫色","粉色","白色","黑色"][idx % 9];
-  const luckyDir = ["东","南","西","北","东北","东南","西北","西南"][idx % 8];
-
-  let html = `
-    <div class="fortune-wrap">
-      <div class="fortune-luck luck-${luck}">${luck}</div>
-      <div class="fortune-details">
-  `;
-
-  aspects.forEach(a => {
-    html += `<div class="fortune-row"><span class="fortune-label">${a.name}</span><span class="fortune-value">${a.pool[idx % a.pool.length]}</span></div>`;
-  });
-
-  html += `
-      </div>
-      <div class="fortune-extras">
-        <span>幸运数字 <b>${luckyNum}</b></span>
-        <span>幸运色 <b>${luckyColor}</b></span>
-        <span>幸运方位 <b>${luckyDir}</b></span>
-      </div>
-    </div>
-  `;
-
-  zone.innerHTML = html;
 }
 
 // ========================
