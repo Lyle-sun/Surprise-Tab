@@ -597,10 +597,11 @@ function renderJoke() {
 function renderDecide() {
   const zone = createCustomZone();
   const categories = [
-    { name: "今天怎么活", items: ["装死","原地飞升","变成蘑菇","进入省电模式","光合作用","假装自己是NPC","时空冻结5分钟","启动紧急摆烂协议","召唤替身代班","物理断联24小时"] },
-    { name: "下班后干嘛", items: ["跟冰箱聊天","给手机办个葬礼","练习用意念关门","数天花板有多少个点","跟蚊子谈判","在脑内重拍一部电影","把今天的bug写成诗","跟镜子里的自己下棋","学猫叫三声看看会发生什么","假装自己是一部正在更新的手机"] },
-    { name: "用什么方式面对老板", items: ["翻译成猫语再回复","全程用emoji沟通","假装信号不好","发一张风景图说「收到」","把老板消息转发给Siri处理","回复「嗯」然后反悔","假装是AI客服","每句话后面加个「汪」","只回一个句号","装作已读不回但其实是没看懂"] },
-    { name: "如何应对社交", items: ["突然开始做拉伸","假装接到一个很重要的电话","默默走开假装有事","说「我马桶好像在叫我了」","打开手机假装在看很急的消息","开始数地板砖","说一句「啊对对对」然后消失","假装自己在加载中","突然用第三人称说话","微笑，然后转身走，不回头"] },
+    { name: "今天怎么活", items: ["装死","原地飞升","变成蘑菇","进入省电模式","光合作用","假装自己是NPC","时空冻结5分钟","启动紧急摆烂协议","召唤替身代班","物理断联24小时","灵魂出窍30秒","启动全自动呼吸模式","把自己折叠放好","假装是植物","进入待机状态","跟空气握手言和","把自己寄到明天","变成一朵云飘走","开启隐身模式（精神上）","降维打击自己"] },
+    { name: "如何面对人类", items: ["翻译成猫语再回复","全程用emoji沟通","假装信号不好","发一张风景图说「收到」","把消息转发给Siri处理","回复「嗯」然后反悔","假装是AI客服","每句话后面加个「汪」","只回一个句号","装作已读不回","突然开始做拉伸","说「我马桶好像在叫我了」然后消失","假装自己在加载中","突然用第三人称说话","假装手机屏幕碎了看不清","每句话前加「本宫」","回复一段乱码然后说「发错了」","假装在开会（其实在被窝里）","说「让我问问我的律师」","发一张黑屏截图说「信号不好」"] },
+    { name: "怎么处理麻烦", items: ["假装没看见","把问题扔给平行宇宙的自己","对着问题念咒","给问题起个名字然后跟它谈判","把问题写下来然后吃掉","假装问题是feature","把问题转发给12345","对问题说「你被开除了」","用意念把问题推到明天","给问题烧纸钱","假装问题是NPC的任务","把问题放进回收站然后清空","跟问题说「我们改天再聊」","给问题发律师函","用胶带把问题封起来","假装问题是另一个人的","把问题缩小到看不见","跟问题说「你谁啊」","让问题自己解决自己","给问题设个闹钟让明天的自己处理"] },
+    { name: "晚饭吃什么", items: ["空气","月光","WiFi信号","自己的口水","回忆里的味道","冰箱里的光","外卖小哥的微笑","昨天剩的寂寞","煮熟的焦虑","一碗空虚","冷冻的下午","微波炉转三圈的什么都可以","泡面但假装是法餐","跟隔壁借点灵魂","电饭煲开盲盒","把所有调料混在一起看命运安排","便利店第三个货架从左数第五个","闭眼在菜单上随便指","让外卖员替你决定","随便，但不能是上次那个随便"] },
+    { name: "人生下一步", items: ["原地旋转三圈","学会跟蚊子交流","给未来的自己发个信号","找一棵树倾诉","在水坑里照镜子思考","把手机语言换成阿拉伯语用一天","跟邻居家的猫交换人生观","闭着眼走十步看看命运带你到哪","在纸上画一条路然后假装走完","给月亮发一条消息","学一种没用的技能","假装自己是纪录片的主角","在公园长椅上坐到有人来搭话","写一首只有自己能读懂的诗","对着空气说「我知道你在看」","把今天过成电影里的蒙太奇","发明一个新的表情","把烦恼写在气球上放飞","跟一个陌生人微笑","数一数自己还有多少个明天"] },
   ];
 
   zone.innerHTML = `
@@ -618,16 +619,17 @@ function renderDecide() {
     const btn = document.createElement("button");
     btn.className = "decide-cat-btn";
     btn.textContent = cat.name;
-    btn.addEventListener("click", () => startDecide(cat, zone));
+    btn.addEventListener("click", () => startDecide(cat));
     catsEl.appendChild(btn);
   });
 }
 
-function startDecide(cat, zone) {
+function startDecide(cat) {
   const result = document.getElementById("decideResult");
   const btn = document.getElementById("decideBtn");
   const anim = document.getElementById("decideAnim");
   const cats = document.getElementById("decideCats");
+  let currentCat = cat;
 
   cats.style.display = "none";
   anim.style.display = "flex";
@@ -635,24 +637,33 @@ function startDecide(cat, zone) {
   result.style.display = "none";
   btn.style.display = "none";
 
-  let count = 0;
-  const total = 15 + Math.floor(Math.random() * 10);
-  const interval = setInterval(() => {
-    anim.textContent = cat.items[Math.floor(Math.random() * cat.items.length)];
-    count++;
-    if (count >= total) {
-      clearInterval(interval);
-      const chosen = cat.items[Math.floor(Math.random() * cat.items.length)];
-      anim.style.display = "none";
-      result.textContent = chosen;
-      result.style.display = "block";
-      btn.style.display = "inline-block";
-      btn.addEventListener("click", () => {
-        result.style.animation = "none"; result.offsetHeight;
-        result.style.animation = "fadeUp 0.4s ease-out";
-      });
-    }
-  }, 80);
+  function roll() {
+    result.style.display = "none";
+    btn.style.display = "none";
+    anim.style.display = "flex";
+    let count = 0;
+    const total = 12 + Math.floor(Math.random() * 8);
+    const interval = setInterval(() => {
+      anim.textContent = currentCat.items[Math.floor(Math.random() * currentCat.items.length)];
+      count++;
+      if (count >= total) {
+        clearInterval(interval);
+        anim.style.display = "none";
+        result.textContent = currentCat.items[Math.floor(Math.random() * currentCat.items.length)];
+        result.style.display = "block";
+        btn.style.display = "inline-block";
+      }
+    }, 70);
+  }
+
+  // clone 按钮移除旧事件，防止叠加
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  newBtn.addEventListener("click", () => {
+    roll();
+  });
+
+  roll();
 }
 
 // ========================
